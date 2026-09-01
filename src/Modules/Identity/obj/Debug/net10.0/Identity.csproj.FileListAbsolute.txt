@@ -1,0 +1,11 @@
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/bin/Debug/net10.0/Identity.deps.json
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/bin/Debug/net10.0/Identity.dll
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/bin/Debug/net10.0/Identity.pdb
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/Identity.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/Identity.AssemblyInfoInputs.cache
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/Identity.AssemblyInfo.cs
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/Identity.csproj.CoreCompileInputs.cache
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/Identity.dll
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/refint/Identity.dll
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/Identity.pdb
+/Users/tarus/Desktop/personal/playground/dotnet/Ecommerce../src/Modules/Identity/obj/Debug/net10.0/ref/Identity.dll

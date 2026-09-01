@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/src/Modules/Catalog/Contracts/Dtos/ProductDto.cs">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/Modules/Catalog/Contracts/Dtos/ProductDto.cs" />
+              <option name="originalContent" value="namespace Catalog.Contracts.Dtos;&#10;&#10;public sealed record ProductDto(&#10;    Guid Id,&#10;    string Name,&#10;    string Description,&#10;    decimal Price,&#10;    Guid CategoryId,&#10;    DateTime CreatedAt,&#10;    DateTime UpdatedAt&#10;);" />
+              <option name="updatedContent" value="namespace Catalog.Contracts.Dtos;&#10;&#10;public sealed record ProductDto(&#10;    Guid Id,&#10;    string Name,&#10;    string Description,&#10;    decimal Price,&#10;    Guid CategoryId,&#10;    DateTime CreatedAt,&#10;    DateTime UpdatedAt&#10;);" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/Modules/Catalog/Contracts/Events/ProductCreatedIntegrationEvent.cs">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/Modules/Catalog/Contracts/Events/ProductCreatedIntegrationEvent.cs" />
+              <option name="originalContent" value="namespace Catalog.Contracts.Events;&#10;&#10;public sealed record ProductCreatedIntegrationEvent(&#10;    Guid ProductId,&#10;    string Name,&#10;    decimal Price,&#10;    Guid CategoryId,&#10;    DateTime OccurredAt&#10;);" />
+              <option name="updatedContent" value="namespace Catalog.Contracts.Events;&#10;&#10;public sealed record ProductCreatedIntegrationEvent(&#10;    Guid ProductId,&#10;    string Name,&#10;    decimal Price,&#10;    Guid CategoryId,&#10;    DateTime OccurredAt&#10;);" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/Modules/Catalog/Infrastructure/Configurations/ProductConfiguration.cs">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/Modules/Catalog/Infrastructure/Configurations/ProductConfiguration.cs" />
+              <option name="originalContent" value="using Catalog.Domain.Entities;&#10;using Microsoft.EntityFrameworkCore;&#10;using Microsoft.EntityFrameworkCore.Metadata.Builders;&#10;&#10;namespace Catalog.Infrastructure.Configurations;&#10;&#10;public class ProductConfiguration : IEntityTypeConfiguration&lt;Product&gt;&#10;{&#10;    public void Configure(EntityTypeBuilder&lt;Product&gt; builder)&#10;    {&#10;        builder.ToTable(&quot;products&quot;);&#10;        builder.HasKey(p =&gt; p.Id);&#10;        builder.Property(p =&gt; p.Name).HasMaxLength(200).IsRequired();&#10;        builder.Property(p =&gt; p.Description).HasMaxLength(1000).IsRequired();&#10;        builder.Property(p =&gt; p.Price).HasPrecision(18, 2).IsRequired();&#10;        builder.HasQueryFilter(p =&gt; !p.IsDeleted);&#10;    }&#10;}" />
+              <option name="updatedContent" value="using Catalog.Domain.Entities;&#10;using Microsoft.EntityFrameworkCore;&#10;using Microsoft.EntityFrameworkCore.Metadata.Builders;&#10;&#10;namespace Catalog.Infrastructure.Configurations;&#10;&#10;public class ProductConfiguration : IEntityTypeConfiguration&lt;Product&gt;&#10;{&#10;    public void Configure(EntityTypeBuilder&lt;Product&gt; builder)&#10;    {&#10;        builder.ToTable(&quot;products&quot;);&#10;        builder.HasKey(p =&gt; p.Id);&#10;        builder.Property(p =&gt; p.Name).HasMaxLength(200).IsRequired();&#10;        builder.Property(p =&gt; p.Description).HasMaxLength(1000).IsRequired();&#10;        builder.Property(p =&gt; p.Price).HasPrecision(18, 2).IsRequired();&#10;        builder.HasQueryFilter(p =&gt; !p.IsDeleted);&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
