@@ -1,0 +1,37 @@
+using BuildingBlocks.Exceptions;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+
+namespace BuildingBlocks.Infrastructure;
+
+public static class BuildingBlocksExtensions
+{
+    public static IServiceCollection AddBuildingBlocks(
+        this IServiceCollection services,
+        params Assembly[] moduleAssemblies)
+    {
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
+
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblies(moduleAssemblies);
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        });
+
+        foreach (var assembly in moduleAssemblies)
+            services.AddValidatorsFromAssembly(assembly);
+
+        return services;
+    }
+
+    public static IApplicationBuilder UseBuildingBlocks(this IApplicationBuilder app)
+    {
+        app.UseExceptionHandler();
+        return app;
+    }
+}

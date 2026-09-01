@@ -10,7 +10,7 @@ public class DeleteCategoryCommandHandler(CatalogDbContext _context) : IRequestH
     {
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
         if (category is null) throw new KeyNotFoundException($"Category {request.Id} was not found");
-        category.IsDeleted = true;
+        category.Delete();
         await _context.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure;
 using Catalog;
 using FluentValidation;
 
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddBuildingBlocks(typeof(CatalogModule).Assembly);
 
 // Register Catalog module
 builder.Services.AddCatalog(builder.Configuration);
@@ -26,6 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c=>c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API v1"));   
 }
 
+app.UseBuildingBlocks();
 app.UseHttpsRedirection();
 
 // Map Catalog endpoints

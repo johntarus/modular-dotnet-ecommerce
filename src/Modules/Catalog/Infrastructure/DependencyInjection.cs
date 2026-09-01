@@ -1,4 +1,4 @@
-using Catalog.Common.Behaviors;
+using BuildingBlocks.Infrastructure;
 using Catalog.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;

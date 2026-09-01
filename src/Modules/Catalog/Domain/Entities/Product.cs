@@ -9,7 +9,7 @@ public class Product
     public Guid CategoryId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; private set; }
 
     private Product()
     {
