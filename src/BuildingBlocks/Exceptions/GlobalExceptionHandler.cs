@@ -5,16 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Exceptions;
 
-/// <summary>
-/// Implements <see cref="IExceptionHandler"/> (.NET 8+) to catch every unhandled exception,
-/// map it to the correct HTTP status, and return a consistent RFC 7807 problem-details body.
-///
-/// Registration (Program.cs):
-///   builder.Services.AddExceptionHandler&lt;GlobalExceptionHandler&gt;();
-///   builder.Services.AddProblemDetails();
-///   ...
-///   app.UseExceptionHandler();
-/// </summary>
 public sealed class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
@@ -37,16 +27,23 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     {
         var (statusCode, title, type) = MapException(exception);
 
-        _logger.LogError(exception,
-            "Unhandled exception — {ExceptionType}: {Message}",
-            exception.GetType().Name, exception.Message);
+        var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString();
+
+        _logger.LogError(
+            exception,
+            "Unhandled exception | TraceId: {{TraceId}} | {ExceptionType}: {Message}",
+            traceId,
+            exception.GetType().Name);
 
         var problem = new ProblemDetailsResponse
         {
             Type = type,
             Title = title,
             Status = statusCode,
-            Detail = exception.Message,
+            Detail = statusCode == StatusCodes.Status500InternalServerError
+                ? "An unexpected error occurred."
+                : exception.Message,
+            TraceId = traceId,
             Errors = exception is ValidationException ve ? ve.Errors : null,
         };
 
@@ -63,10 +60,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     private static (int StatusCode, string Title, string Type) MapException(Exception exception) =>
         exception switch
         {
-            ValidationException   => (StatusCodes.Status400BadRequest,  "Validation Failed",   "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
-            NotFoundException     => (StatusCodes.Status404NotFound,    "Not Found",            "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
-            ConflictException     => (StatusCodes.Status409Conflict,    "Conflict",             "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
-            ForbiddenException    => (StatusCodes.Status403Forbidden,   "Forbidden",            "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
-            _                     => (StatusCodes.Status500InternalServerError, "Server Error",  "https://tools.ietf.org/html/rfc7231#section-6.6.1"),
+            ValidationException => (StatusCodes.Status400BadRequest, "Validation Failed",
+                "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+            NotFoundException => (StatusCodes.Status404NotFound, "Not Found",
+                "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
+            ConflictException => (StatusCodes.Status409Conflict, "Conflict",
+                "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
+            ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden",
+                "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
+            _ => (StatusCodes.Status500InternalServerError, "Server Error",
+                "https://tools.ietf.org/html/rfc7231#section-6.6.1"),
         };
 }

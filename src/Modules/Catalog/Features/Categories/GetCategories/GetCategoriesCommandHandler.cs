@@ -11,6 +11,7 @@ public class GetCategoriesCommandHandler(CatalogDbContext _context)
     {
         return await _context.Categories
             .AsNoTracking()
+            .OrderBy(c => c.Name)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(c => new CategoryResponse(c.Id, c.Name, c.Description))

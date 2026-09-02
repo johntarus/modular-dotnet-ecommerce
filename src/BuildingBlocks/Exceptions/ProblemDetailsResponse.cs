@@ -6,5 +6,6 @@ public sealed class ProblemDetailsResponse
     public string? Title { get; init; }
     public int Status { get; init; }
     public string? Detail { get; init; }
+    public string? TraceId { get; set; }
     public IEnumerable<string>? Errors { get; init; }
 }
