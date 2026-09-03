@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using BuildingBlocks.Infrastructure.CurrentUser;
 
 namespace BuildingBlocks.Infrastructure;
 
@@ -14,6 +15,10 @@ public static class BuildingBlocksExtensions
         params Assembly[] moduleAssemblies)
     {
         services.AddExceptionHandler<GlobalExceptionHandler>();
+        
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, CurrentUser.CurrentUser>();
+        
         services.AddProblemDetails();
 
         services.AddMediatR(cfg =>

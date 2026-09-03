@@ -1,6 +1,7 @@
 using BuildingBlocks.Infrastructure;
 using Catalog;
 using FluentValidation;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,16 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new() { Title = "Ecommerce API", Version = "v1" });
 });
 
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .Enrich.WithProperty(
+            "Application",
+            context.HostingEnvironment.ApplicationName);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,7 +37,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(c=>c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API v1"));   
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API v1"));
 }
 
 app.UseBuildingBlocks();
