@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Observability;
 
 namespace BuildingBlocks.Infrastructure;
 
@@ -20,6 +21,8 @@ public static class BuildingBlocksExtensions
         services.AddScoped<ICurrentUser, CurrentUser.CurrentUser>();
         
         services.AddProblemDetails();
+        
+        services.AddOpenTelemetryTracing("Api");
 
         services.AddMediatR(cfg =>
         {
