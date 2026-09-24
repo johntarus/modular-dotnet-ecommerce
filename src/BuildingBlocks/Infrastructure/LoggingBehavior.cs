@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using BuildingBlocks.Infrastructure.CurrentUser;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -6,7 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace BuildingBlocks.Infrastructure;
 
 public sealed class LoggingBehavior<TRequest, TResponse>(
-    ILogger<LoggingBehavior<TRequest, TResponse>> logger, ICurrentUser currentUser)
+    ILogger<LoggingBehavior<TRequest, TResponse>> logger,
+    ICurrentUser currentUser)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
@@ -17,17 +17,13 @@ public sealed class LoggingBehavior<TRequest, TResponse>(
     {
         var requestName = typeof(TRequest).Name;
         var userId = currentUser.UserId ?? "anonymous";
-        var traceId = Activity.Current?.TraceId.ToString();
 
-        var stopwatch = Stopwatch.StartNew();
-
-        using var scope = logger.BeginScope(new Dictionary<string, object>
+        using var scope = logger.BeginScope(new Dictionary<string, object?>
         {
             ["RequestName"] = requestName,
-            ["UserId"] = userId,
-            // ["TraceId"] = traceId
+            ["UserId"] = userId
         });
-        
+
         logger.LogInformation(
             "Handling request {RequestName}",
             requestName);
@@ -36,26 +32,18 @@ public sealed class LoggingBehavior<TRequest, TResponse>(
         {
             var response = await next(cancellationToken);
 
-            stopwatch.Stop();
-
             logger.LogInformation(
-                "Handled request {RequestName} successfully in {Duration}ms | Success: {Success}",
-                requestName,
-                stopwatch.ElapsedMilliseconds,
-                true);
+                "Handled request {RequestName} successfully",
+                requestName);
 
             return response;
         }
         catch (Exception ex)
         {
-            stopwatch.Stop();
-
             logger.LogError(
                 ex,
-                "Request {RequestName} failed after {Duration}ms | Success: {Success}",
-                requestName,
-                stopwatch.ElapsedMilliseconds,
-                false);
+                "Request {RequestName} failed",
+                requestName);
 
             throw;
         }

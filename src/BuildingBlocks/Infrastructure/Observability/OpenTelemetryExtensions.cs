@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -12,13 +14,32 @@ public static class OpenTelemetryExtensions
     {
         services
             .AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(serviceName))
+            .ConfigureResource(resource =>
+                resource.AddService(serviceName))
             .WithTracing(tracing =>
             {
                 tracing
                     .AddAspNetCoreInstrumentation()
-                    .AddConsoleExporter();
+                    .AddHttpClientInstrumentation()
+                    .AddSource("Npgsql")
+                    .AddOtlpExporter(options =>
+                    {
+                        options.Endpoint = new Uri("http://localhost:4317");
+                    });
             });
+
+        services.AddLogging(logging =>
+        {
+            logging.AddOpenTelemetry(options =>
+            {
+                options.IncludeScopes = true;
+                options.IncludeFormattedMessage = true;
+                options.ParseStateValues = true;
+
+                options.AddConsoleExporter();
+            });
+        });
+
         return services;
     }
 }

@@ -1,0 +1,51 @@
+﻿#services:
+#  api:
+#    image: api
+#    build:
+#      context: .
+#      dockerfile: src/Api/Dockerfile
+#
+#  buildingblocks:
+#    image: buildingblocks
+#    build:
+#      context: .
+#      dockerfile: src/BuildingBlocks/Dockerfile
+#
+#  catalog:
+#    image: catalog
+#    build:
+#      context: .
+#      dockerfile: src/Modules/Catalog/Dockerfile
+#
+#  identity:
+#    image: identity
+#    build:
+#      context: .
+#      dockerfile: src/Modules/Identity/Dockerfile
+#
+
+
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: modular_monolith
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: ecommerce-jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+
+volumes:
+  postgres_data:
