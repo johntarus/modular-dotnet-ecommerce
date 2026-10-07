@@ -1,0 +1,158 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+      http:
+        endpoint: 0.0.0.0:4318
+
+
+processors:
+
+  resource:
+    attributes:
+      - key: service.name
+        value: "${env:SERVICE_NAME}"
+        action: upsert
+
+      - key: deployment.environment
+        value: "${env:ENVIRONMENT}"
+        action: upsert
+
+
+  attributes/redact:
+    actions:
+      - key: http.request.header.authorization
+        action: delete
+
+      - key: http.request.header.cookie
+        action: delete
+
+      - key: user.password
+        action: delete
+
+      - key: user.email
+        action: hash
+
+
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+
+exporters:
+
+  # =========================
+  # TRACES -> TEMPO
+  # =========================
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+
+  # =========================
+  # LOGS -> LOKI
+  # =========================
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    timeout: 30s
+
+    sending_queue:
+      enabled: true
+      num_consumers: 10
+
+
+  # =========================
+  # LOGS -> ELASTICSEARCH
+  # =========================
+  elasticsearch:
+    endpoint: http://elasticsearch:9200
+
+    tls:
+      insecure: true
+
+    logs_index: "app-logs"
+
+    mapping:
+      mode: "otel"
+
+    retry:
+      enabled: true
+      max_requests: 5
+
+
+  # =========================
+  # METRICS -> PROMETHEUS
+  # =========================
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: ecommerce
+
+
+  # =========================
+  # DEBUG
+  # =========================
+  debug:
+    verbosity: normal
+
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+
+service:
+
+  extensions:
+    - health_check
+
+  pipelines:
+
+    # =========================
+    # TRACES
+    # =========================
+    traces:
+      receivers:
+        - otlp
+
+      processors:
+        - resource
+        - batch
+
+      exporters:
+        - otlp/tempo
+
+
+    # =========================
+    # LOGS
+    # =========================
+    logs:
+      receivers:
+        - otlp
+
+      processors:
+        - resource
+        - attributes/redact
+        - batch
+
+      exporters:
+        - otlphttp/loki
+        - elasticsearch
+
+
+    # =========================
+    # METRICS
+    # =========================
+    metrics:
+      receivers:
+        - otlp
+
+      processors:
+        - resource
+        - batch
+
+      exporters:
+        - prometheus
