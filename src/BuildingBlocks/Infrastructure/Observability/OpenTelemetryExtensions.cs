@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -12,33 +11,21 @@ public static class OpenTelemetryExtensions
         this IServiceCollection services,
         string serviceName)
     {
+        var otlpEndpoint = new Uri("http://localhost:4317");
+
         services
             .AddOpenTelemetry()
-            .ConfigureResource(resource =>
-                resource.AddService(serviceName))
-            .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddSource("Npgsql")
-                    .AddOtlpExporter(options =>
-                    {
-                        options.Endpoint = new Uri("http://localhost:4317");
-                    });
-            });
-
-        services.AddLogging(logging =>
-        {
-            logging.AddOpenTelemetry(options =>
-            {
-                options.IncludeScopes = true;
-                options.IncludeFormattedMessage = true;
-                options.ParseStateValues = true;
-
-                options.AddConsoleExporter();
-            });
-        });
+            .ConfigureResource(resource => resource.AddService(serviceName))
+            .WithTracing(tracing => tracing
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddSource("Npgsql")
+                .AddOtlpExporter(o => o.Endpoint = otlpEndpoint))
+            .WithMetrics(metrics => metrics
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddOtlpExporter(o => o.Endpoint = otlpEndpoint));
 
         return services;
     }

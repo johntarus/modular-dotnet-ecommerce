@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ public class GetCategoryByIdQueryHandler(CatalogDbContext _context)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (category == null)
-            throw new KeyNotFoundException($"Category with the id'{request.Id}' was not ffound");
+            throw new NotFoundException($"Category with the id'{request.Id}' was not found");
         return category;
     }
 }

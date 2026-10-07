@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -12,7 +14,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
@@ -27,13 +29,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     {
         var (statusCode, title, type) = MapException(exception);
 
-        var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString();
-
-        _logger.LogError(
-            exception,
-            "Unhandled exception | TraceId: {{TraceId}} | {ExceptionType}: {Message}",
-            traceId,
-            exception.GetType().Name);
+        var traceId = Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier;
 
         var problem = new ProblemDetailsResponse
         {
@@ -47,6 +43,28 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Errors = exception is ValidationException ve ? ve.Errors : null,
         };
 
+        if (statusCode >= StatusCodes.Status500InternalServerError)
+        {
+            _logger.LogError(
+                exception,
+                "Request failed. EventName={EventName}, ExceptionType={ExceptionType}, Message={Message}, StatusCode={StatusCode}, Response={@Response}",
+                "request.failed",
+                exception.GetType().Name,
+                exception.Message,
+                statusCode,
+                problem);
+        }
+        else
+        {
+            _logger.LogWarning(
+                "Request rejected. EventName={EventName}, ExceptionType={ExceptionType}, Message={Message}, StatusCode={StatusCode}, Response={@Response}",
+                "request.rejected",
+                exception.GetType().Name,
+                exception.Message,
+                statusCode,
+                problem);
+        }
+
         httpContext.Response.StatusCode = statusCode;
         httpContext.Response.ContentType = "application/problem+json";
 
@@ -54,7 +72,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             JsonSerializer.Serialize(problem, JsonOptions),
             cancellationToken);
 
-        return true; // we handled it — short-circuit the pipeline
+        return true;
     }
 
     private static (int StatusCode, string Title, string Type) MapException(Exception exception) =>

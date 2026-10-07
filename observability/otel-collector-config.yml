@@ -1,17 +1,28 @@
 receivers:
+
+  # ==========================================
+  # OTLP RECEIVER
+  # ==========================================
   otlp:
     protocols:
+
+      # OTLP gRPC
       grpc:
         endpoint: 0.0.0.0:4317
 
+      # OTLP HTTP/protobuf
       http:
         endpoint: 0.0.0.0:4318
 
 
 processors:
 
+  # ==========================================
+  # RESOURCE ATTRIBUTES
+  # ==========================================
   resource:
     attributes:
+
       - key: service.name
         value: "${env:SERVICE_NAME}"
         action: upsert
@@ -21,8 +32,12 @@ processors:
         action: upsert
 
 
+  # ==========================================
+  # REMOVE SENSITIVE DATA
+  # ==========================================
   attributes/redact:
     actions:
+
       - key: http.request.header.authorization
         action: delete
 
@@ -36,6 +51,9 @@ processors:
         action: hash
 
 
+  # ==========================================
+  # BATCH
+  # ==========================================
   batch:
     timeout: 5s
     send_batch_size: 1024
@@ -44,20 +62,22 @@ processors:
 
 exporters:
 
-  # =========================
+  # ==========================================
   # TRACES -> TEMPO
-  # =========================
-  otlp/tempo:
+  # ==========================================
+  otlp_grpc/tempo:
     endpoint: tempo:4317
+
     tls:
       insecure: true
 
 
-  # =========================
+  # ==========================================
   # LOGS -> LOKI
-  # =========================
-  otlphttp/loki:
+  # ==========================================
+  otlp_http/loki:
     endpoint: http://loki:3100/otlp
+
     timeout: 30s
 
     sending_queue:
@@ -65,41 +85,42 @@ exporters:
       num_consumers: 10
 
 
-  # =========================
-  # LOGS -> ELASTICSEARCH
-  # =========================
+  # LOGS ELASTICSEARCH
   elasticsearch:
     endpoint: http://elasticsearch:9200
-
     tls:
       insecure: true
-
-    logs_index: "app-logs"
-
+    logs_index: "logs-ecommerce-default"
     mapping:
-      mode: "otel"
-
+      mode: otel
     retry:
       enabled: true
-      max_requests: 5
+      max_retries: 5
 
 
-  # =========================
+  # ==========================================
   # METRICS -> PROMETHEUS
-  # =========================
+  # ==========================================
   prometheus:
     endpoint: 0.0.0.0:8889
     namespace: ecommerce
 
 
-  # =========================
+  # ==========================================
   # DEBUG
-  # =========================
+  # ==========================================
+  # Temporary while debugging.
+  # This prints received logs to the Collector
+  # container logs.
   debug:
-    verbosity: normal
+    verbosity: detailed
 
 
 extensions:
+
+  # ==========================================
+  # HEALTH CHECK
+  # ==========================================
   health_check:
     endpoint: 0.0.0.0:13133
 
@@ -111,9 +132,9 @@ service:
 
   pipelines:
 
-    # =========================
+    # ========================================
     # TRACES
-    # =========================
+    # ========================================
     traces:
       receivers:
         - otlp
@@ -123,12 +144,12 @@ service:
         - batch
 
       exporters:
-        - otlp/tempo
+        - otlp_grpc/tempo
 
 
-    # =========================
+    # ========================================
     # LOGS
-    # =========================
+    # ========================================
     logs:
       receivers:
         - otlp
@@ -139,13 +160,16 @@ service:
         - batch
 
       exporters:
-        - otlphttp/loki
+        - otlp_http/loki
         - elasticsearch
 
+        # Temporary debugging exporter
+        - debug
 
-    # =========================
+
+    # ========================================
     # METRICS
-    # =========================
+    # ========================================
     metrics:
       receivers:
         - otlp
