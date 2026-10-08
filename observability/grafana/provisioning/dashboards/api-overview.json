@@ -1,0 +1,59 @@
+{
+  "uid": "api-overview",
+  "title": "Api Overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "timeseries", "title": "Requests / sec by route",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "DS_PROMETHEUS" },
+      "targets": [{
+        "refId": "A", "legendFormat": "{{http_route}}",
+        "expr": "sum by (http_route) (rate(http_server_request_duration_seconds_count[5m]))"
+      }]
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Latency p50 / p95 / p99",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "DS_PROMETHEUS" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        { "refId": "A", "legendFormat": "p50", "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_request_duration_seconds_bucket[5m])))" },
+        { "refId": "B", "legendFormat": "p95", "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket[5m])))" },
+        { "refId": "C", "legendFormat": "p99", "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_seconds_bucket[5m])))" }
+      ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "5xx error rate",
+      "gridPos": { "x": 0, "y": 8, "w": 6, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "DS_PROMETHEUS" },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 2 }, "overrides": [] },
+      "targets": [{
+        "refId": "A",
+        "expr": "(sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[5m])) / sum(rate(http_server_request_duration_seconds_count[5m]))) * 100 or vector(0)"
+      }]
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Memory (working set)",
+      "gridPos": { "x": 6, "y": 8, "w": 9, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "DS_PROMETHEUS" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [{ "refId": "A", "legendFormat": "working set", "expr": "process_memory_usage_bytes" }]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "CPU (cores used)",
+      "gridPos": { "x": 15, "y": 8, "w": 9, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "DS_PROMETHEUS" },
+      "targets": [{ "refId": "A", "legendFormat": "cpu", "expr": "sum(rate(process_cpu_time_seconds_total[5m]))" }]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "GC collections / sec",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "DS_PROMETHEUS" },
+      "targets": [{ "refId": "A", "legendFormat": "gen {{gc_heap_generation}}", "expr": "sum by (gc_heap_generation) (rate(dotnet_gc_collections_total[5m]))" }]
+    }
+  ]
+}

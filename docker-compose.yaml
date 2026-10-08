@@ -53,12 +53,8 @@
   # TEMPO
   # ==========================================
   tempo:
-    image: grafana/tempo:latest
-    container_name: ecommerce-tempo
-
-    command:
-      - "-config.file=/etc/tempo/tempo.yml"
-
+    image: grafana/tempo:2.8.2
+    command: [ "-config.file=/etc/tempo/tempo.yml" ]
     volumes:
       - ./observability/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
       - tempo_data:/var/tempo
@@ -97,17 +93,15 @@
   prometheus:
     image: prom/prometheus:latest
     container_name: ecommerce-prometheus
-
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-
+      - "--web.enable-remote-write-receiver"
+      - "--enable-feature=exemplar-storage"
     volumes:
       - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
-
     ports:
       - "9090:9090"
-
     restart: unless-stopped
 
   # ==========================================
@@ -167,18 +161,15 @@
   grafana:
     image: grafana/grafana:latest
     container_name: ecommerce-grafana
-
     ports:
       - "3000:3000"
-
     volumes:
       - grafana_data:/var/lib/grafana
-
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - tempo
       - prometheus
       - loki
-
     restart: unless-stopped
 
 

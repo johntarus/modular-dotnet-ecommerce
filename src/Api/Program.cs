@@ -15,7 +15,7 @@ Serilog.Debugging.SelfLog.Enable(message =>
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddBuildingBlocks(typeof(CatalogModule).Assembly);
+builder.Services.AddBuildingBlocks(builder.Configuration, typeof(CatalogModule).Assembly);
 builder.Services.AddCatalog(builder.Configuration);
 builder.Services.AddValidatorsFromAssembly(typeof(CatalogModule).Assembly);
 
