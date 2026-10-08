@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -9,9 +10,11 @@ public static class OpenTelemetryExtensions
 {
     public static IServiceCollection AddOpenTelemetryTracing(
         this IServiceCollection services,
+        IConfiguration configuration,
         string serviceName)
     {
-        var otlpEndpoint = new Uri("http://localhost:4317");
+        var otlpEndpoint = new Uri(
+            configuration["Otel:Endpoint"] ?? "http://localhost:4317");
 
         services
             .AddOpenTelemetry()
@@ -25,7 +28,13 @@ public static class OpenTelemetryExtensions
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
-                .AddOtlpExporter(o => o.Endpoint = otlpEndpoint));
+                .AddProcessInstrumentation()
+                .AddOtlpExporter((exporter, reader) =>
+                {
+                    exporter.Endpoint = otlpEndpoint;
+                    reader.PeriodicExportingMetricReaderOptions
+                        .ExportIntervalMilliseconds = 15000;
+                }));
 
         return services;
     }

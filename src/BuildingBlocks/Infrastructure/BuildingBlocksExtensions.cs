@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using BuildingBlocks.Infrastructure.CurrentUser;
 using BuildingBlocks.Infrastructure.Observability;
+using Microsoft.Extensions.Configuration;
 
 namespace BuildingBlocks.Infrastructure;
 
@@ -13,6 +14,7 @@ public static class BuildingBlocksExtensions
 {
     public static IServiceCollection AddBuildingBlocks(
         this IServiceCollection services,
+        IConfiguration configuration,
         params Assembly[] moduleAssemblies)
     {
         services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -22,7 +24,7 @@ public static class BuildingBlocksExtensions
         
         services.AddProblemDetails();
         
-        services.AddOpenTelemetryTracing("Api");
+        services.AddOpenTelemetryTracing(configuration, "ecommerce-api");
 
         services.AddMediatR(cfg =>
         {
