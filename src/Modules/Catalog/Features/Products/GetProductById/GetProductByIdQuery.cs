@@ -1,6 +1,6 @@
+using MediatR;
+
 namespace Catalog.Features.Products.GetProductById;
 
-public class GetProductByIdQuery
-{
-    
-}
+public sealed record GetProductByIdQuery(
+    Guid Id) : IRequest<ProductResponse>;

@@ -4,18 +4,27 @@ using ValidationException = BuildingBlocks.Exceptions.ValidationException;
 
 namespace BuildingBlocks.Infrastructure;
 
-public sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
+public sealed class ValidationBehavior<TRequest, TResponse>(
+    IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
         if (!validators.Any())
             return await next(cancellationToken);
 
         var context = new ValidationContext<TRequest>(request);
-        var failures = validators
-            .Select(v => v.Validate(context))
+
+        var validationTasks = validators.Select(v =>
+            v.ValidateAsync(context, cancellationToken));
+
+        var results = await Task.WhenAll(validationTasks);
+
+        var failures = results
             .SelectMany(r => r.Errors)
             .Where(f => f != null)
             .Select(f => f.ErrorMessage)

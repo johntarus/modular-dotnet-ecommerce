@@ -1,8 +1,10 @@
 using Catalog.Features.Products.CreateProduct;
+using Catalog.Features.Products.GetProductById;
 using Catalog.Features.Products.GetProducts;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Catalog.Features.Products;
@@ -20,6 +22,9 @@ public static class ProductEndpoints
         group.MapGet(
             "/",
             GetProducts);
+        group.MapGet(
+            "/{id:guid}",
+            GetProductById);
 
         return group;
     }
@@ -43,5 +48,13 @@ public static class ProductEndpoints
     {
         var products = await sender.Send(query, ct);
         return Results.Ok(products);
+    }
+    private static async Task<IResult> GetProductById(
+        Guid id,
+        ISender sender,
+        CancellationToken ct)
+    {
+        var product = await sender.Send(new GetProductByIdQuery(id), ct);
+        return Results.Ok(product);
     }
 }
