@@ -1,6 +1,8 @@
 using Catalog.Features.Products.CreateProduct;
+using Catalog.Features.Products.DeleteProduct;
 using Catalog.Features.Products.GetProductById;
 using Catalog.Features.Products.GetProducts;
+using Catalog.Features.Products.UpdateProduct;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +27,12 @@ public static class ProductEndpoints
         group.MapGet(
             "/{id:guid}",
             GetProductById);
+        group.MapPut(
+            "/{id:guid}",
+            UpdateProduct);
+        group.MapDelete(
+            "/{id:guid}",
+            DeleteProduct);
 
         return group;
     }
@@ -56,5 +64,28 @@ public static class ProductEndpoints
     {
         var product = await sender.Send(new GetProductByIdQuery(id), ct);
         return Results.Ok(product);
+    }
+
+    private static async Task<IResult> UpdateProduct(
+        Guid id,
+        UpdateProductCommand command,
+        ISender sender,
+        CancellationToken ct)
+    {
+        var updateCommand = command with { Id = id };
+        await sender.Send(updateCommand, ct);
+
+        // Fetch and return the updated product to verify
+        var product = await sender.Send(new GetProductByIdQuery(id), ct);
+        return Results.Ok(product);
+    }
+
+    private static async Task<IResult> DeleteProduct(
+        Guid id,
+        ISender sender,
+        CancellationToken ct)
+    {
+        await sender.Send(new DeleteProductCommand(id), ct);
+        return Results.NoContent();
     }
 }

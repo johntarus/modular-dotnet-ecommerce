@@ -1,6 +1,5 @@
+using MediatR;
+
 namespace Catalog.Features.Products.DeleteProduct;
 
-public class DeleteProductCommand
-{
-    
-}
+public sealed record DeleteProductCommand(Guid Id) : IRequest;

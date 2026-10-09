@@ -10,6 +10,7 @@ public class GetProductByIdQueryHandler(CatalogDbContext _context) : IRequestHan
     {
         return await _context.Products
             .AsNoTracking()
+            .Where(p => p.Id == request.Id)
             .Select(p => new ProductResponse(
                 p.Id,
                 p.Name,
