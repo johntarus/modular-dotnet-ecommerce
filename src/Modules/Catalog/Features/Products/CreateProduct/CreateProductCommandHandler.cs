@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Catalog.Features.Products.CreateProduct;
 
-public class CreateProductCommandHandler(CatalogDbContext context)
+internal class CreateProductCommandHandler(CatalogDbContext context)
     : IRequestHandler<CreateProductCommand, Guid>
 {
     public async Task<Guid> Handle(CreateProductCommand request, CancellationToken ct)

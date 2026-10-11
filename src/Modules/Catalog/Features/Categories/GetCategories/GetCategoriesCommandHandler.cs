@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Categories.GetCategories;
 
-public class GetCategoriesCommandHandler(CatalogDbContext _context)
+internal class GetCategoriesCommandHandler(CatalogDbContext _context)
     : IRequestHandler<GetCategoriesQuery, List<CategoryResponse>>
 {
     public async Task<List<CategoryResponse>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)

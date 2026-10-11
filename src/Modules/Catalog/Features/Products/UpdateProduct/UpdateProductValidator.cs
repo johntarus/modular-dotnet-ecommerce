@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.UpdateProduct;
 
-public sealed class UpdateProductValidator
+internal sealed class UpdateProductValidator
     : AbstractValidator<UpdateProductCommand>
 {
     public UpdateProductValidator(CatalogDbContext context)

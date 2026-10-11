@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Categories.DeleteCategory;
 
-public class DeleteCategoryCommandHandler(CatalogDbContext _context) : IRequestHandler<DeleteCategoryCommand>
+internal class DeleteCategoryCommandHandler(CatalogDbContext _context) : IRequestHandler<DeleteCategoryCommand>
 {
     public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
     {

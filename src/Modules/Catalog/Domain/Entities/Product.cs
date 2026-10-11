@@ -1,6 +1,10 @@
+using BuildingBlocks.Domain;
+using BuildingBlocks.Shared;
+using Catalog.Domain.Events;
+
 namespace Catalog.Domain.Entities;
 
-public class Product
+public class Product : BaseEntity
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
@@ -23,7 +27,8 @@ public class Product
             throw new ArgumentException("Product Price must be greater than zero.", nameof(price));
         if (categoryId == Guid.Empty)
             throw new ArgumentException("Product Category must be provided.", nameof(categoryId));
-        return new Product
+
+        var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -34,6 +39,14 @@ public class Product
             UpdatedAt = DateTime.UtcNow,
             IsDeleted = false
         };
+
+        product.AddDomainEvent(new ProductCreatedDomainEvent(
+            product.Id,
+            product.Name,
+            product.Price,
+            product.CategoryId));
+
+        return product;
     }
 
     public void UpdateDetails(string name, string description, Guid categoryId)
@@ -42,10 +55,17 @@ public class Product
             throw new ArgumentException("Name cannot be empty.", nameof(name));
         if(categoryId == Guid.Empty)
             throw new ArgumentException("Category cannot be empty.", nameof(categoryId));
+
         Name = name;
         Description = description;
         CategoryId = categoryId;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new ProductUpdatedDomainEvent(
+            Id,
+            Name,
+            Description,
+            CategoryId));
     }
     
     
@@ -53,14 +73,27 @@ public class Product
     {
         if (price <= 0)
             throw new ArgumentException("Price must be greater than zero.");
+
+        var oldPrice = Price;
         Price = price;
         UpdatedAt = DateTime.UtcNow;
+
+        if (oldPrice != price)
+        {
+            AddDomainEvent(new ProductPriceChangedDomainEvent(
+                Id,
+                oldPrice,
+                price));
+        }
     }
     public void Delete()
     {
         if (IsDeleted)
             return;
+
         IsDeleted = true;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new ProductDeletedDomainEvent(Id));
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Categories.UpdateCategory;
 
-public class UpdateCategoryCommandHandler(
+internal class UpdateCategoryCommandHandler(
     CatalogDbContext _context
 ) : IRequestHandler<UpdateCategoryCommand>
 {

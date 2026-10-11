@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.GetProducts;
 
-public class GetProductsQueryHandler(
+internal class GetProductsQueryHandler(
     CatalogDbContext _context
 ) : IRequestHandler<GetProductsQuery, List<ProductResponse>>
 {

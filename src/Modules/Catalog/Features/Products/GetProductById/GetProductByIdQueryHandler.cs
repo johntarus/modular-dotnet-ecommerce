@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.GetProductById;
 
-public class GetProductByIdQueryHandler(CatalogDbContext _context) : IRequestHandler<GetProductByIdQuery, ProductResponse>
+internal class GetProductByIdQueryHandler(CatalogDbContext _context) : IRequestHandler<GetProductByIdQuery, ProductResponse>
 {
     public async Task<ProductResponse?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {

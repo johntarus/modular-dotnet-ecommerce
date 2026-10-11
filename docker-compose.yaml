@@ -11,6 +11,22 @@
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+        
+  # RABBITMQ 
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: ecommerce-rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 
   # ==========================================
   # OPENTELEMETRY COLLECTOR
@@ -180,3 +196,4 @@ volumes:
   elasticsearch_data:
   prometheus_data:
   grafana_data:
+  rabbitmq_data:

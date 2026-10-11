@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.UpdateProduct;
 
-public class UpdateProductCommandHandler(CatalogDbContext context)
+internal class UpdateProductCommandHandler(CatalogDbContext context)
     : IRequestHandler<UpdateProductCommand>
 {
     public async Task Handle(UpdateProductCommand request, CancellationToken ct)

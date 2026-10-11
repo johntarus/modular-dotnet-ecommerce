@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Catalog.Features.Categories.CreateCategory;
 
-public class CreateCategoryCommandHandler(CatalogDbContext _context) : IRequestHandler<CreateCategoryCommand, Guid>
+internal class CreateCategoryCommandHandler(CatalogDbContext _context) : IRequestHandler<CreateCategoryCommand, Guid>
 {
     public async Task<Guid> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {

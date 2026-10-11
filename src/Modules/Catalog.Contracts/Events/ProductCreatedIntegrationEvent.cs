@@ -1,3 +1,5 @@
+using BuildingBlocks.Contracts.Events;
+
 namespace Catalog.Contracts.Events;
 
 public sealed record ProductCreatedIntegrationEvent(
@@ -5,5 +7,7 @@ public sealed record ProductCreatedIntegrationEvent(
     string Name,
     decimal Price,
     Guid CategoryId,
-    DateTime OccurredAt
-);
+    DateTime OccurredAt) : IIntegrationEvent
+{
+    public Guid EventId { get; } = Guid.NewGuid();
+}

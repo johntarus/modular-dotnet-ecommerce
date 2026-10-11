@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.DeleteProduct;
 
-public class DeleteProductCommandHandler(CatalogDbContext context)
+internal class DeleteProductCommandHandler(CatalogDbContext context)
     : IRequestHandler<DeleteProductCommand>
 {
     public async Task Handle(DeleteProductCommand request, CancellationToken ct)

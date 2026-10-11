@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.CreateProduct;
 
-public sealed class CreateProductValidator
+internal sealed class CreateProductValidator
     : AbstractValidator<CreateProductCommand>
 {
     public CreateProductValidator(CatalogDbContext context)

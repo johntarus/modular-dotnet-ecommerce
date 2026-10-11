@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Features.Categories.GetCategoryById;
 
-public class GetCategoryByIdQueryHandler(CatalogDbContext _context)
+internal class GetCategoryByIdQueryHandler(CatalogDbContext _context)
     : IRequestHandler<GetCategoryByIdQuery, CategoryResponse>
 {
     public async Task<CategoryResponse> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
