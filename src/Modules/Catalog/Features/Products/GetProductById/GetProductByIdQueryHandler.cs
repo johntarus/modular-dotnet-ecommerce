@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ internal class GetProductByIdQueryHandler(CatalogDbContext _context) : IRequestH
 {
     public async Task<ProductResponse?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Products
+        var product = await _context.Products
             .AsNoTracking()
             .Where(p => p.Id == request.Id)
             .Select(p => new ProductResponse(
@@ -18,5 +19,8 @@ internal class GetProductByIdQueryHandler(CatalogDbContext _context) : IRequestH
                 p.Description,
                 p.CategoryId))
             .FirstOrDefaultAsync(cancellationToken);
+        if (product is null)
+            throw new NotFoundException($"Product with the id '{request.Id}' was not found");
+        return product;
     }
 }

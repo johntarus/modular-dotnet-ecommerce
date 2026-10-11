@@ -15,12 +15,12 @@ public class ProductCreatedDomainEventHandler
         _eventBus = eventBus;
     }
 
-    // TODO: Publish integration event via event bus
+    //  Publish integration event via event bus
     public async Task Handle(
         ProductCreatedDomainEvent notification,
         CancellationToken cancellationToken)
     {
-        // For now, just log or publish to integration event bus
+        //  For now, just log or publish to integration event bus
         var integrationEvent = new ProductCreatedIntegrationEvent(
             notification.ProductId,
             notification.Name,
@@ -28,7 +28,7 @@ public class ProductCreatedDomainEventHandler
             notification.CategoryId,
             notification.OccurredAt);
 
-        // TODO: Publish integrationEvent to event bus (RabbitMQ, etc.)
+        // Publish integrationEvent to event bus (RabbitMQ, etc.)
         await _eventBus.PublishAsync(integrationEvent, cancellationToken);
     }
 }
