@@ -16,29 +16,18 @@ internal static class DependencyInjection
     {
         services.AddDbContext<CatalogDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-        
-        
-        // services.AddMassTransit(x =>
-        // {
-        //     x.UsingRabbitMq((context, cfg) =>
-        //     {
-        //         var host = configuration["RabbitMq:Host"]
-        //                    ?? throw new InvalidOperationException(
-        //                        "RabbitMq:Host is missing from configuration.");
-        //
-        //         var username = configuration["RabbitMq:Username"] ?? "guest";
-        //         var password = configuration["RabbitMq:Password"] ?? "guest";
-        //
-        //         cfg.Host(host, "/", h =>
-        //         {
-        //             h.Username(username);
-        //             h.Password(password);
-        //         });
-        //     });
-        // });
 
         services.AddScoped<IEventBus, EventBus>();
+        services.AddMassTransit(x =>
+        {
+            x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+        });
 
+        // 1. Register the Outbox
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(CatalogModule).Assembly);

@@ -17,23 +17,17 @@ public static class DependencyInjection
 
         services.AddMassTransit(x =>
         {
+            x.AddEntityFrameworkOutbox<InventoryDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+        });
+
+        services.AddMassTransit(x =>
+        {
             x.AddConsumer<ProductCreatedIntegrationEventConsumer>();
             x.AddConsumer<ProductDeletedIntegrationEventConsumer>();
-
-            // x.UsingRabbitMq((context, cfg) =>
-            // {
-            //     var host = configuration["RabbitMq:Host"] ??
-            //                throw new InvalidOperationException("RabbitMq:Host missing");
-            //     cfg.Host(host, "/", h =>
-            //     {
-            //         h.Username(configuration["RabbitMq:Username"] ?? "guest");
-            //         h.Password(configuration["RabbitMq:Password"] ?? "guest");
-            //     });
-            //
-            //     // THIS IS THE MAGIC LINE
-            //     // It auto-provisions queues and binds them to Catalog's exchanges!
-            //     cfg.ConfigureEndpoints(context);
-            // });
         });
         return services;
     }

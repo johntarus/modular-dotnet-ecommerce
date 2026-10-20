@@ -1,6 +1,7 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Shared;
 using Catalog.Domain.Entities;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +16,14 @@ internal class CatalogDbContext(DbContextOptions<CatalogDbContext> options, IPub
     {
         modelBuilder.HasDefaultSchema("catalog");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogDbContext).Assembly);
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Dispatch domain events before saving
+        // Dispatch domain events before saving / use an outbox pattern to avoid synchronous operations here
         await DispatchDomainEventsAsync(cancellationToken);
 
         return await base.SaveChangesAsync(cancellationToken);

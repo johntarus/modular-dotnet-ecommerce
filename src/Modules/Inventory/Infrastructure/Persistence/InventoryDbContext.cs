@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain;
 using Inventory.Domain.Entities;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,10 @@ public class InventoryDbContext(DbContextOptions<InventoryDbContext> options, IP
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("inventory");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InventoryDbContext).Assembly);   
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InventoryDbContext).Assembly); 
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
