@@ -7,9 +7,12 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/Api/Api.csproj", "src/Api/"]
-COPY ["src/Modules/Catalog/Catalog.csproj", "src/Modules/Catalog/"]
-COPY ["src/BuildingBlocks/BuildingBlocks.csproj", "src/BuildingBlocks/"]
+COPY ["src/Api/Api.csproj", "Api/"]
+COPY ["src/BuildingBlocks/BuildingBlocks.csproj", "BuildingBlocks/"]
+COPY ["src/Modules/Catalog/Catalog.csproj", "Modules/Catalog/"]
+COPY ["src/Modules/Catalog.Contracts/Catalog.Contracts.csproj", "Modules/Catalog.Contracts/"]
+COPY ["src/Modules/Inventory/Inventory.csproj", "Modules/Inventory/"]
+COPY ["src/Modules/Inventory.Contracts/Inventory.Contracts.csproj", "Modules/Inventory.Contracts/"]
 RUN dotnet restore "src/Api/Api.csproj"
 COPY . .
 WORKDIR "/src/src/Api"

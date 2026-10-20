@@ -1,4 +1,26 @@
 ﻿services:
+  
+  api:
+    image: ecommerce-api:latest
+    container_name: ecommerce-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5005:8080" # Maps localhost:5000 to container port 8080
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Override connection strings to use Docker DNS names instead of localhost
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=modular_monolith;Username=postgres;Password=postgres
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+      - Otel__Endpoint=http://otel-collector:4317
+    depends_on:
+      - postgres
+      - rabbitmq
+      - otel-collector
+    restart: unless-stopped
 
   postgres:
     image: postgres:17
