@@ -1,6 +1,4 @@
 using Inventory.Features.Inventory.AdjustStock;
-using Inventory.Features.Inventory.CreateInventory;
-using Inventory.Features.Inventory.DeleteInventory;
 using Inventory.Features.Inventory.GetInventory;
 using Inventory.Features.Inventory.GetInventoryById;
 using MediatR;
@@ -24,14 +22,6 @@ public static class InventoryEndpoints
         // group.MapDelete("/{id:guid}", Inventory.DeleteInventory);
         return group;
     }
-    private static async Task<IResult> CreateCategory(
-        CreateInventoryCommand command,
-        ISender sender,
-        CancellationToken ct)
-    {
-        var id = await sender.Send(command, ct);
-        return Results.Created($"/api/inventories/{id}", id);
-    }
 
     private static async Task<IResult> GetInventoryById(Guid id, [FromServices] ISender sender, CancellationToken ct)
     {
@@ -54,14 +44,6 @@ public static class InventoryEndpoints
     {
         var command = new AdjustStockCommand(id, request.QuantityChange);
         await sender.Send(command, ct);
-        return Results.NoContent();
-    }
-
-    private static async Task<IResult> DeleteInventory(Guid id,
-        ISender sender,
-        CancellationToken ct)
-    {
-        await sender.Send(new DeleteInventoryCommand(id), ct);
         return Results.NoContent();
     }
 }
