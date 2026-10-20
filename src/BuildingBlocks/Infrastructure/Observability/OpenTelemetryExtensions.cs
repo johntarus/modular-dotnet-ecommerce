@@ -23,6 +23,7 @@ public static class OpenTelemetryExtensions
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddSource("Npgsql")
+                .AddSource("MassTransit")
                 .AddOtlpExporter(o => o.Endpoint = otlpEndpoint))
             .WithMetrics(metrics => metrics
                 .AddAspNetCoreInstrumentation()

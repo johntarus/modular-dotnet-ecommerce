@@ -2,22 +2,29 @@ using BuildingBlocks.Infrastructure;
 using BuildingBlocks.Infrastructure.Middleware;
 using Catalog;
 using FluentValidation;
+using Inventory;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Serilog.Debugging.SelfLog.Enable(message =>
-{
-    Console.Error.WriteLine($"[SERILOG SELF-LOG] {message}");
-});
+Serilog.Debugging.SelfLog.Enable(message => { Console.Error.WriteLine($"[SERILOG SELF-LOG] {message}"); });
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddBuildingBlocks(builder.Configuration, typeof(CatalogModule).Assembly);
+builder.Services.AddBuildingBlocks(builder.Configuration, typeof(CatalogModule).Assembly,
+    typeof(InventoryModule).Assembly);
+builder.Services.AddValidatorsFromAssemblies(new[]
+{
+    typeof(CatalogModule).Assembly,
+    typeof(InventoryModule).Assembly
+});
+
 builder.Services.AddCatalog(builder.Configuration);
-builder.Services.AddValidatorsFromAssembly(typeof(CatalogModule).Assembly);
+builder.Services.AddInventory(builder.Configuration);
+
+builder.Services.AddMessaging(builder.Configuration);
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -85,5 +92,6 @@ if (!string.IsNullOrEmpty(app.Configuration["https_port"]))
 }
 
 app.MapCatalog();
+app.MapInventory();
 
 app.Run();

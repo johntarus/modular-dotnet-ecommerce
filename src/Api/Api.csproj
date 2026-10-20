@@ -24,6 +24,8 @@
     <ItemGroup>
       <ProjectReference Include="..\Modules\Catalog\Catalog.csproj" />
       <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\Modules\Inventory.Contracts\Inventory.Contracts.csproj" />
+      <ProjectReference Include="..\Modules\Inventory\Inventory.csproj" />
     </ItemGroup>
 
     <ItemGroup>
