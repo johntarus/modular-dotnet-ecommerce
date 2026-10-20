@@ -41,7 +41,7 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                     b.Property<int>("QuantityReserved")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Updated")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ProductId");

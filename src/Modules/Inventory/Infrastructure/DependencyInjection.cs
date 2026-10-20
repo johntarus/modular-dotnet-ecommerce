@@ -20,7 +20,6 @@ public static class DependencyInjection
             x.AddEntityFrameworkOutbox<InventoryDbContext>(o =>
             {
                 o.UsePostgres();
-                o.UseBusOutbox();
             });
         });
 

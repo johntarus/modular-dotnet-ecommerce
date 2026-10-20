@@ -16,7 +16,7 @@ internal class GetInventoryQueryHandler(InventoryDbContext _context)
             .Take(request.PageSize)
             .Select(i =>
                 new InventoryResponse(i.ProductId, i.QuantityOnHand, i.QuantityReserved, i.AvailableQuantity,
-                    i.Updated))
+                    i.UpdatedAt))
             .ToListAsync(cancellationToken);
     }
 }

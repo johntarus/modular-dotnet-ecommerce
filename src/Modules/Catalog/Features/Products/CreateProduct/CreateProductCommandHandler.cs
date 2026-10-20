@@ -16,7 +16,11 @@ internal class CreateProductCommandHandler(CatalogDbContext context)
             request.CategoryId);
 
         context.Products.Add(product);
+        
+        // The Outbox message is saved within this transaction
+        await using var transaction = await context.Database.BeginTransactionAsync(ct);
         await context.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
 
         return product.Id;
     }

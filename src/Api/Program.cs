@@ -46,7 +46,7 @@ builder.Host.UseSerilog((context, configuration) =>
         .WriteTo.Console()
         .WriteTo.OpenTelemetry(options =>
         {
-            options.Endpoint = "http://localhost:4318";
+            options.Endpoint = "http://otel-collector:4318";
             options.Protocol = OtlpProtocol.HttpProtobuf;
 
             options.ResourceAttributes = new Dictionary<string, object>

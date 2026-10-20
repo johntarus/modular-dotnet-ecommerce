@@ -14,8 +14,7 @@ internal class GetInventoryByIdQueryHandler(InventoryDbContext _context)
             .AsNoTracking()
             .Where(i => i.ProductId == request.ProductId)
             .Select(i =>
-                new InventoryResponse(i.ProductId, i.QuantityOnHand, i.QuantityReserved, i.AvailableQuantity,
-                    i.Updated))
+                new InventoryResponse(i.ProductId, i.QuantityOnHand, i.QuantityReserved, i.AvailableQuantity, i.UpdatedAt))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (item == null)

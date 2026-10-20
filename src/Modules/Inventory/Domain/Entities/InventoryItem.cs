@@ -9,7 +9,7 @@ public class InventoryItem : BaseEntity
     public int QuantityReserved { get; private set; }
     public int AvailableQuantity => QuantityOnHand - QuantityReserved;
     public DateTime CreatedAt { get; private set; }
-    public DateTime Updated { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
     public bool IsDeleted { get; private set; }
 
     private InventoryItem() { }
@@ -22,7 +22,7 @@ public class InventoryItem : BaseEntity
             QuantityOnHand = 0,
             QuantityReserved = 0,
             CreatedAt = DateTime.UtcNow,
-            Updated = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
             IsDeleted = false
         };
     }
@@ -32,7 +32,7 @@ public class InventoryItem : BaseEntity
         if (quantity <= 0 && Math.Abs(quantity) > QuantityOnHand)
             throw new InvalidOperationException("Cannot reduce stock below zero.");
         QuantityOnHand += quantity;
-        Updated = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
         // Add Domain event in future i.e #StockLevelChangedDomainEvent
     }
     
@@ -53,6 +53,6 @@ public class InventoryItem : BaseEntity
     {
         if (IsDeleted) return;
         IsDeleted = true;
-        Updated = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 }
