@@ -15,11 +15,9 @@ public static class InventoryEndpoints
     {
         var group = app.MapGroup("/inventory")
             .WithTags("Inventory");
-        // group.MapPost("/", CreateInventory);
         group.MapGet("/{id:guid}", GetInventoryById);
         group.MapGet("/", GetInventories);
         group.MapPut("/{id:guid}", AdJustStock);
-        // group.MapDelete("/{id:guid}", Inventory.DeleteInventory);
         return group;
     }
 
