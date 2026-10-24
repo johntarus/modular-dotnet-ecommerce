@@ -13,15 +13,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yaml = docker-compose.yaml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{EC447DCF-ABFA-6E24-52A5-D7FD48A5C558}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.Contracts", "src\Modules\Catalog.Contracts\Catalog.Contracts.csproj", "{46FE4562-6FB5-4DAE-BF73-44A87FB5279E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory", "src\Modules\Inventory\Inventory.csproj", "{55D9F2DF-7529-4C12-9613-5B06E8D24A74}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.Contracts", "src\Modules\Inventory.Contracts\Inventory.Contracts.csproj", "{1340D0C2-0289-44EF-A61B-195B77BD4768}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart", "src\Modules\Cart\Cart.csproj", "{19A88B60-F39C-4E5C-8205-324CF79DE2DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.Contracts", "src\Modules\Cart.Contracts\Cart.Contracts.csproj", "{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,12 +117,34 @@ Global
 		{1340D0C2-0289-44EF-A61B-195B77BD4768}.Release|x64.Build.0 = Release|Any CPU
 		{1340D0C2-0289-44EF-A61B-195B77BD4768}.Release|x86.ActiveCfg = Release|Any CPU
 		{1340D0C2-0289-44EF-A61B-195B77BD4768}.Release|x86.Build.0 = Release|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Debug|x64.Build.0 = Debug|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Debug|x86.Build.0 = Debug|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Release|x64.ActiveCfg = Release|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Release|x64.Build.0 = Release|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Release|x86.ActiveCfg = Release|Any CPU
+		{19A88B60-F39C-4E5C-8205-324CF79DE2DB}.Release|x86.Build.0 = Release|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Debug|x64.Build.0 = Debug|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Debug|x86.Build.0 = Debug|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Release|x64.ActiveCfg = Release|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Release|x64.Build.0 = Release|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Release|x86.ActiveCfg = Release|Any CPU
+		{0A0CC9B7-54A7-400B-BF5D-2AF6AC0CE455}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EC447DCF-ABFA-6E24-52A5-D7FD48A5C558} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{46FE4562-6FB5-4DAE-BF73-44A87FB5279E} = {EC447DCF-ABFA-6E24-52A5-D7FD48A5C558}
 	EndGlobalSection
 EndGlobal

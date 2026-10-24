@@ -1,8 +1,10 @@
 using BuildingBlocks.Infrastructure;
 using BuildingBlocks.Infrastructure.Middleware;
+using Cart;
 using Catalog;
 using FluentValidation;
 using Inventory;
+using Inventory.Features.Inventory.Grpc;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
 
@@ -12,6 +14,7 @@ Serilog.Debugging.SelfLog.Enable(message => { Console.Error.WriteLine($"[SERILOG
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddGrpc();
 
 builder.Services.AddBuildingBlocks(builder.Configuration, typeof(CatalogModule).Assembly,
     typeof(InventoryModule).Assembly);
@@ -23,6 +26,7 @@ builder.Services.AddValidatorsFromAssemblies(new[]
 
 builder.Services.AddCatalog(builder.Configuration);
 builder.Services.AddInventory(builder.Configuration);
+builder.Services.AddCart(builder.Configuration);
 
 builder.Services.AddMessaging(builder.Configuration);
 
@@ -91,7 +95,9 @@ if (!string.IsNullOrEmpty(app.Configuration["https_port"]))
     app.UseHttpsRedirection();
 }
 
+app.MapGrpcService<InventoryGrpcService>();
 app.MapCatalog();
 app.MapInventory();
+app.MapCart();
 
 app.Run();
