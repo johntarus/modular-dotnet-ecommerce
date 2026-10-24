@@ -5,5 +5,12 @@ namespace BuildingBlocks.Infrastructure.CurrentUser;
 
 public class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    public string? UserId => httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    public Guid? UserId
+    {
+        get
+        {
+            var claimValue = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(claimValue, out var userId) ? userId : null;
+        }
+    }
 }

@@ -17,11 +17,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddGrpc();
 
 builder.Services.AddBuildingBlocks(builder.Configuration, typeof(CatalogModule).Assembly,
-    typeof(InventoryModule).Assembly);
+    typeof(InventoryModule).Assembly, typeof(CartModule).Assembly);
 builder.Services.AddValidatorsFromAssemblies(new[]
 {
     typeof(CatalogModule).Assembly,
-    typeof(InventoryModule).Assembly
+    typeof(InventoryModule).Assembly,
+    typeof(CartModule).Assembly,
 });
 
 builder.Services.AddCatalog(builder.Configuration);

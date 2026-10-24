@@ -20,12 +20,12 @@ public static class DependencyInjection
             x.AddEntityFrameworkOutbox<CartDbContext>(o =>
             {
                 o.UsePostgres();
-                o.UseBusOutbox();
+                // o.UseBusOutbox();
             });
         });
         services.AddGrpcClient<InventoryGrpc.InventoryGrpcClient>(o =>
         {
-            o.Address = new Uri("http://localhost:8080");
+            o.Address = new Uri("http://localhost:5294");
         });
         return services;
     }

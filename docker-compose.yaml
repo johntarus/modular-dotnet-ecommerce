@@ -7,7 +7,8 @@
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5005:8080" # Maps localhost:5000 to container port 8080
+      - "5293:5293" 
+      - "5294:5294"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       # Override connection strings to use Docker DNS names instead of localhost

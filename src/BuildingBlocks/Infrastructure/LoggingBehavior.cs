@@ -20,7 +20,7 @@ public sealed class LoggingBehavior<TRequest, TResponse>(
             typeof(TRequest).Name;
 
         var userId =
-            currentUser.UserId ?? "anonymous";
+            currentUser.UserId ?? Guid.Empty;
 
         using var scope =
             logger.BeginScope(

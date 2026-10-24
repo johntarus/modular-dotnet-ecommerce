@@ -7,7 +7,7 @@ namespace Catalog.Features.Products.GetProductById;
 
 internal class GetProductByIdQueryHandler(CatalogDbContext _context) : IRequestHandler<GetProductByIdQuery, ProductResponse>
 {
-    public async Task<ProductResponse?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ProductResponse> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
         var product = await _context.Products
             .AsNoTracking()

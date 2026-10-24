@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using Cart.Domain.Entities;
 using Cart.Infrastructure.Persistence;
 using Inventory.Contracts.Grpc;
@@ -21,7 +22,7 @@ internal class AddItemToCartCommandHandler(CartDbContext context, InventoryGrpc.
 
         if (!stockResponse.IsAvailable)
         {
-            throw new InvalidOperationException($"Cannot add to cart: {stockResponse.Message}");
+            throw new NotFoundException($"Cannot add to cart: {stockResponse.Message}");
         }
 
         // 2. Find or create the user's cart

@@ -41,4 +41,48 @@ public class ShoppingCart : BaseEntity
 
         UpdatedAt = DateTime.UtcNow;
     }
+    
+    public void SetItemQuantity(Guid productId, int quantity, decimal unitPrice)
+    {
+        if (productId == Guid.Empty)
+            throw new ValidationException("ProductId is required.");
+
+        if (quantity <= 0)
+            throw new ValidationException("Quantity must be greater than zero.");
+
+        var item = _items.FirstOrDefault(
+            x => x.ProductId == productId);
+
+        if (item is null)
+            throw new ValidationException("The product does not exist in the cart.");
+
+        item.SetQuantity(quantity,  unitPrice);
+
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void RemoveItem(Guid productId)
+    {
+        if (productId == Guid.Empty)
+            throw new ValidationException("ProductId is required.");
+
+        var item = _items.FirstOrDefault(
+            x => x.ProductId == productId);
+
+        if (item is null)
+            throw new ValidationException("The product does not exist in the cart.");
+
+        _items.Remove(item);
+
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Clear()
+    {
+        if (_items.Count == 0)
+            return;
+
+        _items.Clear();
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
