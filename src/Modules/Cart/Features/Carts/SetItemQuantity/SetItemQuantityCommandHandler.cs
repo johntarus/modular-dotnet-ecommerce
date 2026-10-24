@@ -19,7 +19,7 @@ internal class SetItemQuantityCommandHandler(CartDbContext context) : IRequestHa
         if (cart == null)
             throw new NotFoundException($"Cart with id {request.UserId} does not exist.");
         
-        cart.SetItemQuantity(request.ProductId, request.Quantity, request.unitPrice);
+        cart.SetItemQuantity(request.ProductId, request.Quantity);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

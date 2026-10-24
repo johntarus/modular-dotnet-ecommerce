@@ -42,7 +42,7 @@ public class ShoppingCart : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
     
-    public void SetItemQuantity(Guid productId, int quantity, decimal unitPrice)
+    public void SetItemQuantity(Guid productId, int quantity)
     {
         if (productId == Guid.Empty)
             throw new ValidationException("ProductId is required.");
@@ -56,7 +56,7 @@ public class ShoppingCart : BaseEntity
         if (item is null)
             throw new ValidationException("The product does not exist in the cart.");
 
-        item.SetQuantity(quantity,  unitPrice);
+        item.SetQuantity(quantity);
 
         UpdatedAt = DateTime.UtcNow;
     }

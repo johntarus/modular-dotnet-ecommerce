@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Cart.Features.Carts.SetItemQuantity;
 
-public record SetItemQuantityCommand(Guid UserId, Guid ProductId, int Quantity, decimal unitPrice) : IRequest;
+public record SetItemQuantityCommand(Guid UserId, Guid ProductId, int Quantity) : IRequest;

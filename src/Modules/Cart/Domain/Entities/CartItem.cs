@@ -39,13 +39,13 @@ public class CartItem
         UnitPrice = unitPrice;
     }
 
-    public void SetQuantity(int quantity, decimal unitPrice)
+    public void SetQuantity(int quantity)
     {
         if (quantity <= 0)
             throw new ValidationException("Quantity must be greater than zero.");
-        if (unitPrice < 0)
-            throw new ValidationException("Price cannot be negative.");
+        // if (unitPrice < 0)
+        //     throw new ValidationException("Price cannot be negative.");
         Quantity = quantity;
-        UnitPrice = unitPrice;
+        // UnitPrice = unitPrice;
     }
 }
