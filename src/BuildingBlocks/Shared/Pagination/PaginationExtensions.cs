@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace BuildingBlocks.Shared;
+namespace BuildingBlocks.Shared.Pagination;
 
 public static class PaginationExtensions
 {

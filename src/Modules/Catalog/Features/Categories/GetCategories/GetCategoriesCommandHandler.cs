@@ -1,3 +1,5 @@
+using BuildingBlocks.Shared;
+using BuildingBlocks.Shared.Pagination;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,16 +7,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Catalog.Features.Categories.GetCategories;
 
 internal class GetCategoriesCommandHandler(CatalogDbContext _context)
-    : IRequestHandler<GetCategoriesQuery, List<CategoryResponse>>
+    : IRequestHandler<GetCategoriesQuery, PagedResult<CategoryResponse>>
 {
-    public async Task<List<CategoryResponse>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<CategoryResponse>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Categories
+        var query = _context.Categories
             .AsNoTracking()
             .OrderBy(c => c.Name)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(c => new CategoryResponse(c.Id, c.Name, c.Description))
-            .ToListAsync(cancellationToken);
+            .Select(c => new CategoryResponse(c.Id, c.Name, c.Description));
+        return await query.ToPagedResultAsync(new PaginationRequest(request.Page, request.PageSize), cancellationToken);
     }
 }

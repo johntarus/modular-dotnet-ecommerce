@@ -1,4 +1,5 @@
 using BuildingBlocks.Shared;
+using BuildingBlocks.Shared.Pagination;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
