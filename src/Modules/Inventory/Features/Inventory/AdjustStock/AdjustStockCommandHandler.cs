@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using Inventory.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +20,12 @@ internal class AdjustStockCommandHandler(
 
         if (item is null)
         {
-            throw new KeyNotFoundException(
+            throw new NotFoundException(
                 $"Inventory record for product {request.ProductId} not found.");
         }
 
         item.AdjustStock(
-            request.QuantityChange);
+            request.QuantityChange, request.Reason);
 
         await _context.SaveChangesAsync(cancellationToken);
     }

@@ -4,5 +4,6 @@ namespace Inventory.Features.Inventory.AdjustStock;
 
 public record AdjustStockCommand(
     Guid ProductId,
-    int QuantityChange
+    int QuantityChange,
+    string Reason
     ) : IRequest;

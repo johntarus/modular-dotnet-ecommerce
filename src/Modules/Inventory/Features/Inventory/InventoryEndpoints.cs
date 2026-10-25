@@ -1,6 +1,7 @@
 using Inventory.Features.Inventory.AdjustStock;
 using Inventory.Features.Inventory.GetInventory;
 using Inventory.Features.Inventory.GetInventoryById;
+using Inventory.Features.Inventory.SetStock;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,8 @@ public static class InventoryEndpoints
             .WithTags("Inventory");
         group.MapGet("/{id:guid}", GetInventoryById);
         group.MapGet("/", GetInventories);
-        group.MapPut("/{id:guid}", AdJustStock);
+        group.MapPatch("/{id:guid}/adjustments", AdJustStock);
+        group.MapPut("/{id:guid}/stock", SetStock);
         return group;
     }
 
@@ -40,7 +42,15 @@ public static class InventoryEndpoints
         CancellationToken ct
     )
     {
-        var command = new AdjustStockCommand(id, request.QuantityChange);
+        var command = new AdjustStockCommand(id, request.QuantityChange, request.Reason);
+        await sender.Send(command, ct);
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> SetStock(Guid id, [FromBody] SetStockRequest request, ISender sender,
+        CancellationToken ct)
+    {
+        var command = new SetStockCommand(id, request.QuantityChange, request.Reason);
         await sender.Send(command, ct);
         return Results.NoContent();
     }
