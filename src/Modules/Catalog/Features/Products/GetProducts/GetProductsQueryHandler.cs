@@ -1,3 +1,4 @@
+using BuildingBlocks.Shared;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,22 +7,20 @@ namespace Catalog.Features.Products.GetProducts;
 
 internal class GetProductsQueryHandler(
     CatalogDbContext _context
-) : IRequestHandler<GetProductsQuery, List<ProductResponse>>
+) : IRequestHandler<GetProductsQuery, PagedResult<ProductResponse>>
 {
-    public async Task<List<ProductResponse>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<ProductResponse>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Products
+        var query = _context.Products
             .AsNoTracking()
             .OrderBy(p => p.Name)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
             .Select(p => new ProductResponse(
                 p.Id,
                 p.Name,
                 p.Price,
                 p.Description,
                 p.CategoryId
-            ))
-            .ToListAsync(cancellationToken);
+            ));
+        return await query.ToPagedResultAsync(new PaginationRequest(request.Page, request.PageSize), cancellationToken);
     }
 }
