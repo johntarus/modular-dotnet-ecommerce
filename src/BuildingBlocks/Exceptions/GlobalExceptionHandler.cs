@@ -75,18 +75,28 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         return true;
     }
 
-    private static (int StatusCode, string Title, string Type) MapException(Exception exception) =>
+    private static (int StatusCode, string Title, string Type)
+        MapException(Exception exception) =>
         exception switch
         {
-            ValidationException => (StatusCodes.Status400BadRequest, "Validation Failed",
-                "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
-            NotFoundException => (StatusCodes.Status404NotFound, "Not Found",
-                "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
-            ConflictException => (StatusCodes.Status409Conflict, "Conflict",
-                "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
-            ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden",
-                "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
-            _ => (StatusCodes.Status500InternalServerError, "Server Error",
-                "https://tools.ietf.org/html/rfc7231#section-6.6.1"),
+            ValidationException =>
+                (400, "Validation Failed",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+
+            NotFoundException =>
+                (404, "Not Found",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
+
+            ConflictException =>
+                (409, "Conflict",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
+
+            ForbiddenException =>
+                (403, "Forbidden",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
+
+            _ =>
+                (500, "Server Error",
+                    "https://tools.ietf.org/html/rfc7231#section-6.6.1")
         };
 }

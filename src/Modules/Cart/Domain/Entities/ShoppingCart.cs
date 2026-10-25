@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using BuildingBlocks.Domain;
+using BuildingBlocks.Exceptions;
+using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 namespace Cart.Domain.Entities;
 
@@ -54,7 +55,7 @@ public class ShoppingCart : BaseEntity
             x => x.ProductId == productId);
 
         if (item is null)
-            throw new ValidationException("The product does not exist in the cart.");
+            throw new NotFoundException("The product does not exist in the cart.");
 
         item.SetQuantity(quantity);
 
