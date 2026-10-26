@@ -1,8 +1,9 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Exceptions;
 
 namespace Cart.Domain.Entities;
 
-public class CartItem
+public class CartItem : BaseEntity
 {
     public const int MaxQuantity = 99;
 

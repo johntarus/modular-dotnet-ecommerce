@@ -1,21 +1,25 @@
 using BuildingBlocks.Exceptions;
+using BuildingBlocks.Infrastructure.CurrentUser;
 using Cart.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cart.Features.Carts.RemoveItem;
 
-internal class RemoveItemCommandHandler(CartDbContext context) : IRequestHandler<RemoveItemCommand>
+internal sealed class RemoveItemCommandHandler(CartDbContext context, ICurrentUser user)
+    : IRequestHandler<RemoveItemCommand>
 {
-    public async Task Handle(RemoveItemCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RemoveItemCommand request, CancellationToken ct)
     {
-        var cart = await context.Carts.Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.UserId == request.UserId, cancellationToken);
-        
-        if(cart == null)
-            throw new NotFoundException("cart not found");
-        
+        var userId = user.UserId
+                     ?? throw new ForbiddenException("Sign in to use the cart.");
+
+        var cart = await context.Carts
+                       .Include(c => c.Items)
+                       .FirstOrDefaultAsync(c => c.UserId == userId, ct)
+                   ?? throw new NotFoundException("Cart not found.");
+
         cart.RemoveItem(request.ProductId);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(ct);
     }
 }

@@ -6,13 +6,11 @@ namespace Catalog.Domain.Entities;
 
 public class Product : BaseEntity
 {
-    public Guid Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
     public Guid CategoryId { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
+
     public bool IsDeleted { get; private set; }
 
     private Product()

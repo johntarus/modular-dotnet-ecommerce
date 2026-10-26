@@ -7,9 +7,6 @@ public class AddItemToCartCommandValidator
 {
     public AddItemToCartCommandValidator()
     {
-        RuleFor(x => x.UserId)
-            .NotEmpty();
-
         RuleFor(x => x.ProductId)
             .NotEmpty();
 

@@ -7,11 +7,9 @@ namespace Cart.Domain.Entities;
 public class ShoppingCart : BaseEntity
 {
     private readonly List<CartItem> _items = [];
-    public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
+
     public uint Version { get; private set; }
 
     public ShoppingCart()

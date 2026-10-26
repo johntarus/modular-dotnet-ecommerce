@@ -9,11 +9,12 @@ public class InventoryItem : BaseEntity
     public int QuantityOnHand { get; private set; }
     public int QuantityReserved { get; private set; }
     public int AvailableQuantity => QuantityOnHand - QuantityReserved;
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
+
     public bool IsDeleted { get; private set; }
 
-    private InventoryItem() { }
+    private InventoryItem()
+    {
+    }
 
     public static InventoryItem Create(Guid productId)
     {
@@ -27,7 +28,7 @@ public class InventoryItem : BaseEntity
             IsDeleted = false
         };
     }
-    
+
     public void AdjustStock(int delta, string reason)
     {
         if (delta == 0) throw new ValidationException("Delta cannot be zero.");
@@ -47,25 +48,36 @@ public class InventoryItem : BaseEntity
         if (quantity < QuantityReserved)
             throw new ConflictException("Stock cannot be set below the reserved quantity.");
 
-        var delta = quantity - QuantityOnHand;
         QuantityOnHand = quantity;
         UpdatedAt = DateTime.UtcNow;
         // AddDomainEvent(new StockAdjustedDomainEvent(ProductId, delta, QuantityOnHand, reason));
     }
-    
+
     public void ReserveStock(int quantity)
     {
         if (quantity <= 0)
-            throw new InvalidOperationException("Cannot reserve negative quantity.");
+            throw new ValidationException(
+                "Reservation quantity must be positive.");
+
+        if (quantity > AvailableQuantity)
+            throw new ConflictException("Insufficient available stock.");
+
         QuantityReserved += quantity;
     }
-    
+
     public void ReleaseStock(int quantity)
     {
         if (quantity <= 0)
-            throw new InvalidOperationException("Cannot release negative quantity.");
+            throw new ValidationException(
+                "Release quantity must be positive.");
+
+        if (quantity > QuantityReserved)
+            throw new ConflictException(
+                "Cannot release more stock than is reserved.");
+
+        QuantityReserved -= quantity;
     }
-    
+
     public void Delete()
     {
         if (IsDeleted) return;
