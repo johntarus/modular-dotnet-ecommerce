@@ -3,15 +3,17 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Copy csproj files, preserving the "src/" directory structure
+# Copy ALL csproj files, preserving the "src/" directory structure
 COPY ["src/Api/Api.csproj", "src/Api/"]
 COPY ["src/BuildingBlocks/BuildingBlocks.csproj", "src/BuildingBlocks/"]
 COPY ["src/Modules/Catalog/Catalog.csproj", "src/Modules/Catalog/"]
 COPY ["src/Modules/Catalog.Contracts/Catalog.Contracts.csproj", "src/Modules/Catalog.Contracts/"]
 COPY ["src/Modules/Inventory/Inventory.csproj", "src/Modules/Inventory/"]
 COPY ["src/Modules/Inventory.Contracts/Inventory.Contracts.csproj", "src/Modules/Inventory.Contracts/"]
+COPY ["src/Modules/Cart/Cart.csproj", "src/Modules/Cart/"]
+COPY ["src/Modules/Cart.Contracts/Cart.Contracts.csproj", "src/Modules/Cart.Contracts/"]
 
-# Restore dependencies (this will now find the correct files)
+# Restore dependencies
 RUN dotnet restore "src/Api/Api.csproj"
 
 # Copy everything else

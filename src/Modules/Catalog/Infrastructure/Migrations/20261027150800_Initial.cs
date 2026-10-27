@@ -4,20 +4,37 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Cart.Infrastructure.Persistence.Migrations
+namespace Catalog.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCart : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "cart");
+                name: "catalog");
+
+            migrationBuilder.CreateTable(
+                name: "categories",
+                schema: "catalog",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_categories", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "InboxState",
-                schema: "cart",
+                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -41,7 +58,7 @@ namespace Cart.Infrastructure.Persistence.Migrations
 
             migrationBuilder.CreateTable(
                 name: "OutboxState",
-                schema: "cart",
+                schema: "catalog",
                 columns: table => new
                 {
                     OutboxId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -57,24 +74,27 @@ namespace Cart.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "shopping_carts",
-                schema: "cart",
+                name: "products",
+                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_shopping_carts", x => x.Id);
+                    table.PrimaryKey("PK_products", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "OutboxMessage",
-                schema: "cart",
+                schema: "catalog",
                 columns: table => new
                 {
                     SequenceNumber = table.Column<long>(type: "bigint", nullable: false)
@@ -106,115 +126,78 @@ namespace Cart.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_OutboxMessage_InboxState_InboxMessageId_InboxConsumerId",
                         columns: x => new { x.InboxMessageId, x.InboxConsumerId },
-                        principalSchema: "cart",
+                        principalSchema: "catalog",
                         principalTable: "InboxState",
                         principalColumns: new[] { "MessageId", "ConsumerId" });
                     table.ForeignKey(
                         name: "FK_OutboxMessage_OutboxState_OutboxId",
                         column: x => x.OutboxId,
-                        principalSchema: "cart",
+                        principalSchema: "catalog",
                         principalTable: "OutboxState",
                         principalColumn: "OutboxId");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "cart_items",
-                schema: "cart",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CartId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_cart_items", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_cart_items_shopping_carts_CartId",
-                        column: x => x.CartId,
-                        principalSchema: "cart",
-                        principalTable: "shopping_carts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_cart_items_CartId_ProductId",
-                schema: "cart",
-                table: "cart_items",
-                columns: new[] { "CartId", "ProductId" },
-                unique: true);
-
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
-                schema: "cart",
+                schema: "catalog",
                 table: "InboxState",
                 column: "Delivered");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_EnqueueTime",
-                schema: "cart",
+                schema: "catalog",
                 table: "OutboxMessage",
                 column: "EnqueueTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_ExpirationTime",
-                schema: "cart",
+                schema: "catalog",
                 table: "OutboxMessage",
                 column: "ExpirationTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_InboxMessageId_InboxConsumerId_SequenceNumber",
-                schema: "cart",
+                schema: "catalog",
                 table: "OutboxMessage",
                 columns: new[] { "InboxMessageId", "InboxConsumerId", "SequenceNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_OutboxId_SequenceNumber",
-                schema: "cart",
+                schema: "catalog",
                 table: "OutboxMessage",
                 columns: new[] { "OutboxId", "SequenceNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxState_Created",
-                schema: "cart",
+                schema: "catalog",
                 table: "OutboxState",
                 column: "Created");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_shopping_carts_UserId",
-                schema: "cart",
-                table: "shopping_carts",
-                column: "UserId",
-                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "cart_items",
-                schema: "cart");
+                name: "categories",
+                schema: "catalog");
 
             migrationBuilder.DropTable(
                 name: "OutboxMessage",
-                schema: "cart");
+                schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "shopping_carts",
-                schema: "cart");
+                name: "products",
+                schema: "catalog");
 
             migrationBuilder.DropTable(
                 name: "InboxState",
-                schema: "cart");
+                schema: "catalog");
 
             migrationBuilder.DropTable(
                 name: "OutboxState",
-                schema: "cart");
+                schema: "catalog");
         }
     }
 }

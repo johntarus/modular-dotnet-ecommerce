@@ -9,10 +9,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Inventory.Infrastructure.Persistence.Migrations
+namespace Inventory.Infrastructure.Migrations
 {
     [DbContext(typeof(InventoryDbContext))]
-    [Migration("20261020173140_Initial")]
+    [Migration("20261027150821_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -35,6 +35,9 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -44,7 +47,7 @@ namespace Inventory.Infrastructure.Persistence.Migrations
                     b.Property<int>("QuantityReserved")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Updated")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ProductId");

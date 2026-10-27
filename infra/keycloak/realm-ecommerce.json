@@ -1,0 +1,79 @@
+{
+  "realm": "ecommerce",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 600,
+  "roles": {
+    "realm": [
+      { "name": "Admin", "description": "Manages catalog and stock" },
+      { "name": "Customer", "description": "Shops" }
+    ]
+  },
+  "defaultRole": { "name": "Customer" },
+  "clients": [
+    {
+      "clientId": "ecommerce-web",
+      "name": "Ecommerce front end",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": [ "http://localhost:3000/*", "http://localhost:5293/swagger/*" ],
+      "webOrigins": [ "http://localhost:3000", "http://localhost:5293" ],
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "protocolMappers": [
+        {
+          "name": "audience-ecommerce-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "ecommerce-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "flat-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.user",
+      "email": "admin@shop.local",
+      "firstName": "Ada",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [ { "type": "password", "value": "Passw0rd!", "temporary": false } ],
+      "realmRoles": [ "Admin", "Customer" ]
+    },
+    {
+      "username": "customer.user",
+      "email": "customer@shop.local",
+      "firstName": "Cora",
+      "lastName": "Customer",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [ { "type": "password", "value": "Passw0rd!", "temporary": false } ],
+      "realmRoles": [ "Customer" ]
+    }
+  ]
+}

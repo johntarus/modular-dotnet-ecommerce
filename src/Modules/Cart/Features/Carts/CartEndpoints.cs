@@ -15,7 +15,7 @@ public static class CartEndpoints
 {
     public static RouteGroupBuilder MapCartEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/cart").WithTags("cart");
+        var group = app.MapGroup("/cart").WithTags("cart").RequireAuthorization();
 
         group.MapGet("/", GetCart);
         group.MapPost("/items", AddItemToCart);

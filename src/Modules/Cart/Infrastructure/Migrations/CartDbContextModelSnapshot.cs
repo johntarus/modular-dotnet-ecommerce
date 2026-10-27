@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Cart.Infrastructure.Persistence.Migrations
+namespace Cart.Infrastructure.Migrations
 {
     [DbContext(typeof(CartDbContext))]
     partial class CartDbContextModelSnapshot : ModelSnapshot
@@ -32,6 +32,9 @@ namespace Cart.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CartId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
@@ -41,6 +44,9 @@ namespace Cart.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

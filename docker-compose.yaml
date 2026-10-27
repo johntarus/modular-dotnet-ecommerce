@@ -1,5 +1,5 @@
 ﻿services:
-  
+
   api:
     image: ecommerce-api:latest
     container_name: ecommerce-api
@@ -7,7 +7,7 @@
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5293:5293" 
+      - "5293:5293"
       - "5294:5294"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -18,9 +18,12 @@
       - RabbitMq__Password=guest
       - Otel__Endpoint=http://otel-collector:4317
     depends_on:
-      - postgres
-      - rabbitmq
-      - otel-collector
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
 
   postgres:
@@ -34,8 +37,40 @@
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-        
-  # RABBITMQ 
+      # Mount the SQL script
+      - ./infra/postgres/init-keycloak.sql:/docker-entrypoint-initdb.d/init-keycloak.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d modular_monolith" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # KEYCLOAK
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.7
+    container_name: ecommerce-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: http://localhost:8080
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"   # <--- ADD THIS
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # RABBITMQ
   rabbitmq:
     image: rabbitmq:4-management
     container_name: ecommerce-rabbitmq
@@ -49,7 +84,12 @@
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-
+    healthcheck: # <--- ADD THIS
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # ==========================================
   # OPENTELEMETRY COLLECTOR
@@ -57,35 +97,22 @@
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.161.0
     container_name: otel-collector
-
     command:
       - "--config=/etc/otelcol-contrib/config.yaml"
-
     environment:
       SERVICE_NAME: ecommerce-api
       ENVIRONMENT: development
-
     volumes:
       - ./observability/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
-
     ports:
-      # OTLP gRPC
-      - "4317:4317"
-
-      # OTLP HTTP
-      - "4318:4318"
-
-      # Prometheus metrics
-      - "8889:8889"
-
-      # Health check
-      - "13133:13133"
-
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+      - "8889:8889"     # Prometheus metrics
+      - "13133:13133"   # Health check
     depends_on:
       - tempo
       - loki
       - elasticsearch
-
     restart: unless-stopped
 
   # ==========================================
@@ -93,18 +120,13 @@
   # ==========================================
   tempo:
     image: grafana/tempo:2.8.2
-    command: [ "-config.file=/etc/tempo/tempo.yml" ]
+    command: ["-config.file=/etc/tempo/tempo.yml"]
     volumes:
       - ./observability/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
       - tempo_data:/var/tempo
-
     ports:
-      # Tempo HTTP API
-      - "3200:3200"
-
-      # OTLP gRPC
-      - "4320:4317"
-
+      - "3200:3200"     # Tempo HTTP API
+      - "4320:4317"     # OTLP gRPC
     restart: unless-stopped
 
   # ==========================================
@@ -113,17 +135,13 @@
   loki:
     image: grafana/loki:latest
     container_name: ecommerce-loki
-
     command:
       - "-config.file=/etc/loki/loki.yml"
-
     volumes:
       - ./observability/loki/loki.yml:/etc/loki/loki.yml:ro
       - loki_data:/loki
-
     ports:
       - "3100:3100"
-
     restart: unless-stopped
 
   # ==========================================
@@ -149,18 +167,14 @@
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.16.3
     container_name: ecommerce-elasticsearch
-
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-
     ports:
       - "9200:9200"
-
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-
     restart: unless-stopped
 
   # ==========================================
@@ -169,29 +183,20 @@
   kibana:
     image: docker.elastic.co/kibana/kibana:8.16.3
     container_name: ecommerce-kibana
-
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
       SERVER_NAME: kibana
       XPACK_SECURITY_ENABLED: "false"
       XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: "min-32-byte-long-strong-encryption-key-for-kibana"
-
     ports:
       - "5601:5601"
-
     depends_on:
       - elasticsearch
-
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -f http://localhost:5601/api/status || exit 1"
-        ]
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-
     restart: unless-stopped
 
   # ==========================================
@@ -210,7 +215,6 @@
       - prometheus
       - loki
     restart: unless-stopped
-
 
 volumes:
   postgres_data:
