@@ -44,6 +44,8 @@ public static class SwaggerExtensions
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API v1");
+            c.OAuthClientId("ecommerce-web");
+            c.OAuthUsePkce();
         });
         return app;
     }

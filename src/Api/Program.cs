@@ -39,7 +39,6 @@ var app = builder.Build();
 // ---- Pipeline ----
 if (app.Environment.IsDevelopment())
 {
-    // app.MapOpenApi(); <--- REMOVE THIS
     app.UseSwaggerDocumentation();
 }
 
@@ -47,7 +46,7 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 app.UseBuildingBlocks();
 
-app.UseAuth(); // Ensure this contains app.UseAuthentication(); app.UseAuthorization();
+app.UseAuth();
 
 if (!string.IsNullOrEmpty(app.Configuration["https_port"]))
 {
