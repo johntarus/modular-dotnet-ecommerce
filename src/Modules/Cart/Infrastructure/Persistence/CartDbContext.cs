@@ -16,13 +16,41 @@ internal class CartDbContext(
     {
         modelBuilder.HasDefaultSchema("cart");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CartDbContext).Assembly);
+        modelBuilder.Entity<ShoppingCart>(entity =>
+        {
+            entity.ToTable("Carts", table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_Cart_Identity",
+                    """
+                    (
+                        "UserId" IS NOT NULL
+                        AND "GuestTokenHash" IS NULL
+                    )
+                    OR
+                    (
+                        "UserId" IS NULL
+                        AND "GuestTokenHash" IS NOT NULL
+                    )
+                    """);
+            });
+
+            entity.HasIndex(x => x.UserId)
+                .IsUnique()
+                .HasFilter("\"UserId\" IS NOT NULL");
+
+            entity.HasIndex(x => x.GuestTokenHash)
+                .IsUnique()
+                .HasFilter("\"GuestTokenHash\" IS NOT NULL");
+        });
 
         modelBuilder.AddInboxStateEntity();
         modelBuilder.AddOutboxMessageEntity();
         modelBuilder.AddOutboxStateEntity();
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default)
     {
         var entities = ChangeTracker
             .Entries<BaseEntity>()
@@ -34,10 +62,12 @@ internal class CartDbContext(
             .SelectMany(x => x.DomainEvents)
             .ToList();
 
-        foreach (var domainEvent in domainEvents)
-            await publisher.Publish(domainEvent, cancellationToken);
-
         var result = await base.SaveChangesAsync(cancellationToken);
+
+        foreach (var domainEvent in domainEvents)
+        {
+            await publisher.Publish(domainEvent, cancellationToken);
+        }
 
         entities.ForEach(x => x.ClearDomainEvents());
 

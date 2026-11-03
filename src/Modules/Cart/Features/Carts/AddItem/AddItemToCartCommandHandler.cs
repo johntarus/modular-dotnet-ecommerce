@@ -1,21 +1,20 @@
-using BuildingBlocks.Exceptions;
-using BuildingBlocks.Infrastructure.CurrentUser;
-using Cart.Domain.Entities;
+using Cart.Features.Carts.CartResolver;
 using Cart.Infrastructure.Persistence;
 using Inventory.Contracts.Grpc;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Cart.Features.Carts.AddItem;
 
-internal class AddItemToCartCommandHandler(CartDbContext context, ICurrentUser user, InventoryGrpc.InventoryGrpcClient inventoryClient)
+internal class AddItemToCartCommandHandler(
+    CartDbContext context,
+    ICartResolver cartResolver,
+    InventoryGrpc.InventoryGrpcClient inventoryClient)
     : IRequestHandler<AddItemToCartCommand, Guid>
 {
     public async Task<Guid> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
     {
-        var userId = user.UserId
-                     ?? throw new ForbiddenException("Sign in to use the cart.");
-        // 1. SYNCHRONOUS gRPC CALL: Check if Inventory has enough stock
+        // 1. gRPC stock check
         var stockResponse = await inventoryClient.CheckAvailabilityAsync(
             new CheckAvailabilityRequest
             {
@@ -24,21 +23,14 @@ internal class AddItemToCartCommandHandler(CartDbContext context, ICurrentUser u
             }, cancellationToken: cancellationToken);
 
         if (!stockResponse.IsAvailable)
-        {
-            throw new NotFoundException($"Cannot add to cart: {stockResponse.Message}");
-        }
+            throw new BadHttpRequestException($"Cannot add to cart: {stockResponse.Message}");
 
-        // 2. Find or create the user's cart
-        var cart = await context.Carts.Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.UserId == userId, cancellationToken);
+        var cart = await cartResolver.ResolveAsync(createIfMissing: true, cancellationToken: cancellationToken)
+                   ?? throw new InvalidOperationException(
+                       "ICartResolver.ResolveAsync returned null despite createIfMissing: true. " +
+                       "This violates the resolver contract — check CartResolver implementation.");
 
-        if (cart == null)
-        {
-            cart = ShoppingCart.Create(userId);
-            context.Carts.Add(cart);
-        }
-        
-        cart.AddItem(request.ProductId, request.Quantity, 99);
+        cart.AddItem(request.ProductId, request.Quantity, 99.99m);
         await context.SaveChangesAsync(cancellationToken);
         return cart.Id;
     }

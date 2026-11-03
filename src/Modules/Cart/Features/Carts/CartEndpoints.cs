@@ -1,6 +1,7 @@
 using Cart.Features.Carts.AddItem;
 using Cart.Features.Carts.ClearCart;
 using Cart.Features.Carts.GetCart;
+using Cart.Features.Carts.MergeGuestCart;
 using Cart.Features.Carts.RemoveItem;
 using Cart.Features.Carts.SetItemQuantity;
 using MediatR;
@@ -15,13 +16,15 @@ public static class CartEndpoints
 {
     public static RouteGroupBuilder MapCartEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/cart").WithTags("cart").RequireAuthorization();
+        var group = app.MapGroup("/cart").WithTags("cart");
 
         group.MapGet("/", GetCart);
         group.MapPost("/items", AddItemToCart);
         group.MapPut("/items/{productId:guid}", UpdateItemQuantity);
         group.MapDelete("/items/{productId:guid}", RemoveItem);
         group.MapDelete("/cart", ClearCart);
+
+        group.MapPost("/merge", MergeGuestCart).RequireAuthorization();
 
         return group;
     }
@@ -55,6 +58,12 @@ public static class CartEndpoints
     private static async Task<IResult> ClearCart(ISender sender, CancellationToken ct)
     {
         await sender.Send(new ClearCartCommand(), ct);
+        return Results.NoContent();
+    }
+
+    public static async Task<IResult> MergeGuestCart(ISender sender, CancellationToken ct)
+    {
+        var result = await sender.Send(new MergeGuestCartCommand(),  ct);
         return Results.NoContent();
     }
 }

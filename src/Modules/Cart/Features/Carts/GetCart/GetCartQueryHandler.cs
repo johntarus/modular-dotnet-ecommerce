@@ -1,28 +1,24 @@
 using BuildingBlocks.Infrastructure.CurrentUser;
+using Cart.Features.Carts.CartResolver;
 using Cart.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cart.Features.Carts.GetCart;
 
-internal sealed class GetCartQueryHandler(CartDbContext context, ICurrentUser user)
+internal sealed class GetCartQueryHandler(CartDbContext context, ICartResolver cartResolver)
     : IRequestHandler<GetCartQuery, CartResponse>
 {
     public async Task<CartResponse> Handle(GetCartQuery request, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
 
-        // No signed-in (or debug) user: an empty cart, not an error
-        if (user.UserId is not { } userId)
-            return new CartResponse(Guid.Empty, Guid.Empty, [], 0m, now, now);
+        var cart = await cartResolver.ResolveAsync(createIfMissing: true, ct);
 
-        var cart = await context.Carts
-            .AsNoTracking()
-            .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.UserId == userId, ct);
-
-        if (cart is null)
-            return new CartResponse(Guid.Empty, userId, [], 0m, now, now);
+        if (cart is null || cart.Items.Count == 0)
+            return new CartResponse(cart?.Id ?? Guid.Empty,
+                cart?.UserId, [], 0m, cart?.CreatedAt ?? now,
+                cart?.UpdatedAt ?? now);
 
         var items = cart.Items
             .Select(i => new CartItemResponse(i.ProductId, i.Quantity, i.UnitPrice, i.Quantity * i.UnitPrice))

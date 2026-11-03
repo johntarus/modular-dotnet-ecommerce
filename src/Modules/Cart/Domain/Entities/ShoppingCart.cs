@@ -7,16 +7,17 @@ namespace Cart.Domain.Entities;
 public class ShoppingCart : BaseEntity
 {
     private readonly List<CartItem> _items = [];
-    public Guid UserId { get; private set; }
+    public Guid? UserId { get; private set; }
+    public string? GuestTokenHash  { get; private set; }
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
-
+    public DateTime ExpiresAt  { get; private set; }
     public uint Version { get; private set; }
 
     public ShoppingCart()
     {
     }
 
-    public static ShoppingCart Create(Guid userId)
+    public static ShoppingCart CreateForUser(Guid? userId)
     {
         if (userId == Guid.Empty) throw new ValidationException("UserId is required.");
         return new ShoppingCart
@@ -26,6 +27,21 @@ public class ShoppingCart : BaseEntity
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+    }
+
+    public static ShoppingCart CreateForGuest(string guestToken) => new()
+    {
+        Id = Guid.NewGuid(),
+        GuestTokenHash = guestToken,
+        CreatedAt = DateTime.UtcNow,
+        UpdatedAt = DateTime.UtcNow,
+        ExpiresAt = DateTime.UtcNow.AddHours(24),
+    };
+
+    public void MergeFrom(ShoppingCart guestCart)
+    {
+        foreach (var item in guestCart.Items)
+            AddItem(item.ProductId, item.Quantity, item.UnitPrice);
     }
 
     public void AddItem(Guid productId, int quantity, decimal unitPrice)

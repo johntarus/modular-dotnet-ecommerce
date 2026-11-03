@@ -65,10 +65,16 @@ namespace Cart.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuestTokenHash")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<uint>("Version")
@@ -79,10 +85,18 @@ namespace Cart.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("GuestTokenHash")
+                        .IsUnique()
+                        .HasFilter("\"GuestTokenHash\" IS NOT NULL");
 
-                    b.ToTable("shopping_carts", "cart");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("\"UserId\" IS NOT NULL");
+
+                    b.ToTable("Carts", "cart", t =>
+                        {
+                            t.HasCheckConstraint("CK_Cart_Identity", "(\n    \"UserId\" IS NOT NULL\n    AND \"GuestTokenHash\" IS NULL\n)\nOR\n(\n    \"UserId\" IS NULL\n    AND \"GuestTokenHash\" IS NOT NULL\n)");
+                        });
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>
