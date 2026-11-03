@@ -16,6 +16,25 @@ namespace Cart.Infrastructure.Migrations
                 name: "cart");
 
             migrationBuilder.CreateTable(
+                name: "Carts",
+                schema: "cart",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    GuestTokenHash = table.Column<string>(type: "text", nullable: true),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carts", x => x.Id);
+                    table.CheckConstraint("CK_Cart_Identity", "(\"UserId\" IS NOT NULL AND \"GuestTokenHash\" IS NULL) OR (\"UserId\" IS NULL AND \"GuestTokenHash\" IS NOT NULL)");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InboxState",
                 schema: "cart",
                 columns: table => new
@@ -57,19 +76,28 @@ namespace Cart.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "shopping_carts",
+                name: "cart_items",
                 schema: "cart",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    CartId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_shopping_carts", x => x.Id);
+                    table.PrimaryKey("PK_cart_items", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_cart_items_Carts_CartId",
+                        column: x => x.CartId,
+                        principalSchema: "cart",
+                        principalTable: "Carts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,37 +145,28 @@ namespace Cart.Infrastructure.Migrations
                         principalColumn: "OutboxId");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "cart_items",
-                schema: "cart",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    CartId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_cart_items", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_cart_items_shopping_carts_CartId",
-                        column: x => x.CartId,
-                        principalSchema: "cart",
-                        principalTable: "shopping_carts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_cart_items_CartId_ProductId",
                 schema: "cart",
                 table: "cart_items",
                 columns: new[] { "CartId", "ProductId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carts_GuestTokenHash",
+                schema: "cart",
+                table: "Carts",
+                column: "GuestTokenHash",
+                unique: true,
+                filter: "\"GuestTokenHash\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carts_UserId",
+                schema: "cart",
+                table: "Carts",
+                column: "UserId",
+                unique: true,
+                filter: "\"UserId\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
@@ -186,13 +205,6 @@ namespace Cart.Infrastructure.Migrations
                 schema: "cart",
                 table: "OutboxState",
                 column: "Created");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_shopping_carts_UserId",
-                schema: "cart",
-                table: "shopping_carts",
-                column: "UserId",
-                unique: true);
         }
 
         /// <inheritdoc />
@@ -207,7 +219,7 @@ namespace Cart.Infrastructure.Migrations
                 schema: "cart");
 
             migrationBuilder.DropTable(
-                name: "shopping_carts",
+                name: "Carts",
                 schema: "cart");
 
             migrationBuilder.DropTable(

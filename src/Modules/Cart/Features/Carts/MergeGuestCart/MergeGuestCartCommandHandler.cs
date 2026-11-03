@@ -16,17 +16,17 @@ internal sealed class MergeGuestCartCommandHandler(
 {
     public async Task<MergeResult> Handle(MergeGuestCartCommand request, CancellationToken cancellationToken)
     {
-        Guid? userId = currentUser.UserId;
-        if(userId == Guid.Empty)
+        if (currentUser.UserId is not { } userId || userId == Guid.Empty)
             throw new UnauthorizedAccessException("Authentication Required.");
 
-        var guestHashToken = httpContextAccessor.HttpContext?.Request.Headers["X-Cart-Token"].FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(guestHashToken))
+        var guestToken = httpContextAccessor.HttpContext?.Request.Headers["X-Cart-Token"].FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(guestToken))
             return new MergeResult(Guid.Empty, 0, new List<string> { "No guest cart to merge" });
-        
-        // 1. Find guest cart
+
+        // 1. Find guest cart (stored by hash, never by raw token)
+        var guestTokenHash = CartResolver.CartResolver.HashToken(guestToken);
         var guestCart = await context.Carts.Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.GuestTokenHash == guestHashToken, cancellationToken);
+            .FirstOrDefaultAsync(c => c.GuestTokenHash == guestTokenHash, cancellationToken);
 
         if (guestCart == null || guestCart.Items.Count == 0)
             return new MergeResult(Guid.Empty, 0, new List<string> { "No Items in the guest cart" });

@@ -6,13 +6,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace Cart.Features.Carts.AddItem;
 
+public record AddItemResult(Guid CartId, string? IssuedGuestToken);
+
 internal class AddItemToCartCommandHandler(
     CartDbContext context,
     ICartResolver cartResolver,
     InventoryGrpc.InventoryGrpcClient inventoryClient)
-    : IRequestHandler<AddItemToCartCommand, Guid>
+    : IRequestHandler<AddItemToCartCommand, AddItemResult>
 {
-    public async Task<Guid> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
+    public async Task<AddItemResult> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
     {
         // 1. gRPC stock check
         var stockResponse = await inventoryClient.CheckAvailabilityAsync(
@@ -25,13 +27,12 @@ internal class AddItemToCartCommandHandler(
         if (!stockResponse.IsAvailable)
             throw new BadHttpRequestException($"Cannot add to cart: {stockResponse.Message}");
 
-        var cart = await cartResolver.ResolveAsync(createIfMissing: true, cancellationToken: cancellationToken)
-                   ?? throw new InvalidOperationException(
-                       "ICartResolver.ResolveAsync returned null despite createIfMissing: true. " +
-                       "This violates the resolver contract — check CartResolver implementation.");
+        // Resolve or create cart
+        var resolved = await cartResolver.ResolveAsync(createIfMissing: true, cancellationToken);
 
-        cart.AddItem(request.ProductId, request.Quantity, 99.99m);
+        resolved.Cart.AddItem(request.ProductId, request.Quantity, 99.99m);
         await context.SaveChangesAsync(cancellationToken);
-        return cart.Id;
+
+        return new AddItemResult(resolved.Cart.Id, resolved.NewlyIssuedToken);
     }
 }

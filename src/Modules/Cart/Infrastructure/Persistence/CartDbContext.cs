@@ -16,30 +16,18 @@ internal class CartDbContext(
     {
         modelBuilder.HasDefaultSchema("cart");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CartDbContext).Assembly);
-        modelBuilder.Entity<ShoppingCart>(entity =>
+        modelBuilder.Entity<ShoppingCart>(e =>
         {
-            entity.ToTable("Carts", table =>
-            {
-                table.HasCheckConstraint(
+            e.ToTable("Carts", t =>
+                t.HasCheckConstraint(
                     "CK_Cart_Identity",
-                    """
-                    (
-                        "UserId" IS NOT NULL
-                        AND "GuestTokenHash" IS NULL
-                    )
-                    OR
-                    (
-                        "UserId" IS NULL
-                        AND "GuestTokenHash" IS NOT NULL
-                    )
-                    """);
-            });
+                    "(\"UserId\" IS NOT NULL AND \"GuestTokenHash\" IS NULL) OR (\"UserId\" IS NULL AND \"GuestTokenHash\" IS NOT NULL)"));
 
-            entity.HasIndex(x => x.UserId)
+            e.HasIndex(c => c.UserId)
                 .IsUnique()
-                .HasFilter("\"UserId\" IS NOT NULL");
+                .HasFilter("\"UserId\" IS NOT NULL");   // ← partial index
 
-            entity.HasIndex(x => x.GuestTokenHash)
+            e.HasIndex(c => c.GuestTokenHash)
                 .IsUnique()
                 .HasFilter("\"GuestTokenHash\" IS NOT NULL");
         });

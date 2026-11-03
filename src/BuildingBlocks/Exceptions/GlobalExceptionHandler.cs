@@ -95,6 +95,10 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 (403, "Forbidden",
                     "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
 
+            BadHttpRequestException =>
+                (400, "Bad Request",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+
             _ =>
                 (500, "Server Error",
                     "https://tools.ietf.org/html/rfc7231#section-6.6.1")

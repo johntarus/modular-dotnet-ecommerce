@@ -38,8 +38,13 @@ public static class CartEndpoints
     private static async Task<IResult> AddItemToCart(
         [FromBody] AddItemToCartRequest request, ISender sender, CancellationToken ct)
     {
-        var cartId = await sender.Send(new AddItemToCartCommand(request.ProductId, request.Quantity), ct);
-        return Results.Ok(new { CartId = cartId, Message = "Item added to cart successfully" });
+        var result = await sender.Send(new AddItemToCartCommand(request.ProductId, request.Quantity), ct);
+        return Results.Ok(new
+        {
+            result.CartId,
+            result.IssuedGuestToken,
+            Message = "Item added to cart successfully"
+        });
     }
 
     private static async Task<IResult> UpdateItemQuantity(

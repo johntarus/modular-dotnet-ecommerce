@@ -26,7 +26,6 @@ namespace Cart.Infrastructure.Migrations
             modelBuilder.Entity("Cart.Domain.Entities.CartItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CartId")
@@ -95,7 +94,7 @@ namespace Cart.Infrastructure.Migrations
 
                     b.ToTable("Carts", "cart", t =>
                         {
-                            t.HasCheckConstraint("CK_Cart_Identity", "(\n    \"UserId\" IS NOT NULL\n    AND \"GuestTokenHash\" IS NULL\n)\nOR\n(\n    \"UserId\" IS NULL\n    AND \"GuestTokenHash\" IS NOT NULL\n)");
+                            t.HasCheckConstraint("CK_Cart_Identity", "(\"UserId\" IS NOT NULL AND \"GuestTokenHash\" IS NULL) OR (\"UserId\" IS NULL AND \"GuestTokenHash\" IS NOT NULL)");
                         });
                 });
 

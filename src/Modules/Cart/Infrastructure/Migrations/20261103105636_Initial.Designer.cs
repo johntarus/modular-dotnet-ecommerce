@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cart.Infrastructure.Migrations
 {
     [DbContext(typeof(CartDbContext))]
-    [Migration("20261027150917_Initial")]
+    [Migration("20261103105636_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -68,10 +68,16 @@ namespace Cart.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GuestTokenHash")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<uint>("Version")
@@ -82,10 +88,18 @@ namespace Cart.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("GuestTokenHash")
+                        .IsUnique()
+                        .HasFilter("\"GuestTokenHash\" IS NOT NULL");
 
-                    b.ToTable("shopping_carts", "cart");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("\"UserId\" IS NOT NULL");
+
+                    b.ToTable("Carts", "cart", t =>
+                        {
+                            t.HasCheckConstraint("CK_Cart_Identity", "(\"UserId\" IS NOT NULL AND \"GuestTokenHash\" IS NULL) OR (\"UserId\" IS NULL AND \"GuestTokenHash\" IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>

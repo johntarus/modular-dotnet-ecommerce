@@ -1,6 +1,5 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Exceptions;
-using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 namespace Cart.Domain.Entities;
 
@@ -17,7 +16,7 @@ public class ShoppingCart : BaseEntity
     {
     }
 
-    public static ShoppingCart CreateForUser(Guid? userId)
+    public static ShoppingCart CreateForUser(Guid userId)
     {
         if (userId == Guid.Empty) throw new ValidationException("UserId is required.");
         return new ShoppingCart
@@ -32,6 +31,7 @@ public class ShoppingCart : BaseEntity
     public static ShoppingCart CreateForGuest(string guestToken) => new()
     {
         Id = Guid.NewGuid(),
+        UserId = null,
         GuestTokenHash = guestToken,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
