@@ -13,6 +13,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Name).HasMaxLength(200).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(1000).IsRequired();
         builder.Property(p => p.Price).HasPrecision(18, 2).IsRequired();
+        builder.Property(p=>p.CategoryId).IsRequired();
         builder.HasQueryFilter(p => !p.IsDeleted);
     }
 }

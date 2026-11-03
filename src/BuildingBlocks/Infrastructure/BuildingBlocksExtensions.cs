@@ -34,7 +34,7 @@ public static class BuildingBlocksExtensions
         });
 
         foreach (var assembly in moduleAssemblies)
-            services.AddValidatorsFromAssembly(assembly);
+            services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
         return services;
     }

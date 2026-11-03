@@ -50,7 +50,7 @@ public static class InventoryEndpoints
     private static async Task<IResult> SetStock(Guid id, [FromBody] SetStockRequest request, ISender sender,
         CancellationToken ct)
     {
-        var command = new SetStockCommand(id, request.QuantityChange, request.Reason);
+        var command = new SetStockCommand(id, request.Quantity, request.Reason);
         await sender.Send(command, ct);
         return Results.NoContent();
     }

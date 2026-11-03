@@ -1,18 +1,22 @@
 using FluentValidation;
-using Inventory.Features.Inventory.AdjustStock;
 
 namespace Inventory.Features.Inventory.SetStock;
 
-public class SetStockCommandValidator : AbstractValidator<AdjustStockCommand>
+public class SetStockCommandValidator : AbstractValidator<SetStockCommand>
 {
     public SetStockCommandValidator()
     {
         RuleFor(x => x.ProductId)
             .NotEmpty()
             .WithMessage("ProductId is required");
-        RuleFor(x => x.QuantityChange)
-            .NotEqual(0)
-            .WithMessage(
-                "Quantity change cannot be zero. Use a positive number to add stock or a negative number to remove stock.");
+
+        // SetStock replaces QuantityOnHand with an absolute value (not a delta).
+        RuleFor(x => x.Quantity)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Quantity cannot be negative.");
+
+        RuleFor(x => x.Reason)
+            .NotEmpty()
+            .WithMessage("A reason is required.");
     }
 }

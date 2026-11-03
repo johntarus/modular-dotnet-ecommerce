@@ -4,6 +4,6 @@ namespace Inventory.Features.Inventory.SetStock;
 
 public record SetStockCommand(
     Guid ProductId,
-    int QuantityChange,
+    int Quantity,
     string Reason
     ) : IRequest;

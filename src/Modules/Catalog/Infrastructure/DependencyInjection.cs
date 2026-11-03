@@ -27,14 +27,8 @@ internal static class DependencyInjection
             });
         });
 
-        // 1. Register the Outbox
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(typeof(CatalogModule).Assembly);
-            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
-
-        services.AddValidatorsFromAssembly(typeof(CatalogModule).Assembly);
+        // MediatR handlers, pipeline behaviors and validators for this module are
+        // registered centrally in AddBuildingBlocks (Program.cs passes this assembly).
 
         return services;
     }

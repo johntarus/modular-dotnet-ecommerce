@@ -26,7 +26,7 @@ internal class SetStockCommandHandler(
         }
 
         item.SetStock(
-            request.QuantityChange, request.Reason);
+            request.Quantity, request.Reason);
 
         await _context.SaveChangesAsync(cancellationToken);
     }
