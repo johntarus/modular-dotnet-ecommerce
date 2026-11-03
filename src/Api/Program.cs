@@ -23,7 +23,7 @@ builder.Services.AddBuildingBlocks(builder.Configuration,
     typeof(CartModule).Assembly);
 
 builder.Services.AddAuth(builder.Configuration, builder.Environment);
-builder.Services.AddSwaggerDocumentation();
+builder.Services.AddSwaggerDocumentation(builder.Configuration);
 
 builder.Host.AddCustomSerilog();
 

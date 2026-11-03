@@ -20,6 +20,12 @@ public static class AuthExtensions
                 o.MapInboundClaims = false;              // keep "sub" and "roles" as-is
                 o.TokenValidationParameters.NameClaimType = "sub";
                 o.TokenValidationParameters.RoleClaimType = "roles";
+
+                o.TokenValidationParameters.ValidIssuers = new[]
+                {
+                    "http://localhost:8080/realms/ecommerce",
+                    "http://keycloak:8080/realms/ecommerce"
+                };
             });
 
         services.AddAuthorizationBuilder()
