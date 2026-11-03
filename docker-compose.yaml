@@ -17,9 +17,9 @@
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
       - Otel__Endpoint=http://otel-collector:4317
-      - Auth__Authority=http://keycloak:8080/realms/ecommerce
-      - Auth__PublicAuthority=http://localhost:8080/realms/ecommerce
-      - Auth__Audience=ecommerce-api
+#      - Auth__Authority=http://keycloak:8080/realms/ecommerce
+#      - Auth__PublicAuthority=http://localhost:8080/realms/ecommerce
+#      - Auth__Audience=ecommerce-api
     depends_on:
       postgres:
         condition: service_healthy
