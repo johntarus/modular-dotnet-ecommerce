@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.UnitTests", "tests\Mod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart.IntegrationTests", "tests\Modules\Cart\Cart.IntegrationTests\Cart.IntegrationTests.csproj", "{70E19D04-E2A6-4A0C-8B53-A16214CC1903}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.IntegrationTests", "tests\Api.IntegrationTests\Api.IntegrationTests.csproj", "{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -161,6 +163,18 @@ Global
 		{70E19D04-E2A6-4A0C-8B53-A16214CC1903}.Release|x64.Build.0 = Release|Any CPU
 		{70E19D04-E2A6-4A0C-8B53-A16214CC1903}.Release|x86.ActiveCfg = Release|Any CPU
 		{70E19D04-E2A6-4A0C-8B53-A16214CC1903}.Release|x86.Build.0 = Release|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Debug|x64.Build.0 = Debug|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Debug|x86.Build.0 = Debug|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Release|x64.ActiveCfg = Release|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Release|x64.Build.0 = Release|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Release|x86.ActiveCfg = Release|Any CPU
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,5 +184,6 @@ Global
 		{92BC51B5-BA5C-724F-1901-7D3ABC18447E} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
 		{91BADE95-A28B-41A9-9411-874C3DB2D095} = {92BC51B5-BA5C-724F-1901-7D3ABC18447E}
 		{70E19D04-E2A6-4A0C-8B53-A16214CC1903} = {92BC51B5-BA5C-724F-1901-7D3ABC18447E}
+		{78C27A1C-ABFA-4E62-9EDA-DA4A03013114} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

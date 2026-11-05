@@ -18,9 +18,7 @@ public sealed class ExpiredCartCleanupJob(
                 using var scope = scopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<CartDbContext>();
 
-                var deleted = await db.Carts
-                    .Where(c => c.GuestTokenHash != null && c.ExpiresAt < DateTime.UtcNow)
-                    .ExecuteDeleteAsync(ct);
+                var deleted = await DeleteExpiredGuestCartsAsync(db, DateTime.UtcNow, ct);
 
                 if (deleted > 0)
                     logger.LogInformation("Cleaned up {Count} expired guest carts.", deleted);
@@ -31,4 +29,10 @@ public sealed class ExpiredCartCleanupJob(
             }
         }
     }
+
+    /// <summary>Deletes guest carts that expired before <paramref name="now"/>. User carts never expire.</summary>
+    internal static Task<int> DeleteExpiredGuestCartsAsync(CartDbContext db, DateTime now, CancellationToken ct) =>
+        db.Carts
+            .Where(c => c.GuestTokenHash != null && c.ExpiresAt < now)
+            .ExecuteDeleteAsync(ct);
 }

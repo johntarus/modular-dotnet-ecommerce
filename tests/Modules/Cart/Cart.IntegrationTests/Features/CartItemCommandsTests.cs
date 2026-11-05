@@ -196,4 +196,26 @@ public class GetCartTests(PostgresFixture db) : CartTestBase(db)
 
         await Assert.ThrowsAsync<NotFoundException>(GetAsync);
     }
+
+    [Fact]
+    public async Task Guest_WithTokenForEmptyCart_GetsEmptyItemsAndZeroSubtotal()
+    {
+        var (cart, token) = await SeedGuestCartAsync();
+        SendGuestToken(token);
+
+        var response = await GetAsync();
+
+        Assert.Equal(cart.Id, response.Id);
+        Assert.Null(response.UserId);
+        Assert.Empty(response.Items);
+        Assert.Equal(0m, response.Subtotal);
+    }
+
+    [Fact]
+    public async Task Guest_WithUnknownToken_ThrowsNotFound()
+    {
+        SendGuestToken("unknown-token");
+
+        await Assert.ThrowsAsync<NotFoundException>(GetAsync);
+    }
 }

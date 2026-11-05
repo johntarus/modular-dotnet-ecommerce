@@ -57,6 +57,22 @@ public class MergeGuestCartTests(PostgresFixture db) : CartTestBase(db)
     }
 
     [Fact]
+    public async Task EmptyGuestCart_ReturnsWarning_AndCreatesNoUserCart()
+    {
+        var userId = SignIn();
+        var (guestCart, token) = await SeedGuestCartAsync();
+
+        var result = await MergeAsync(token);
+
+        Assert.Equal(0, result.MergedItemCount);
+        Assert.Equal(Guid.Empty, result.CartId);
+        Assert.Single(result.Warnings);
+        Assert.Null(await LoadUserCartAsync(userId));
+        // The empty guest cart is left for the cleanup job
+        Assert.NotNull(await LoadCartAsync(guestCart.Id));
+    }
+
+    [Fact]
     public async Task UserWithoutCart_GetsNewCartWithGuestItems_AndGuestCartIsDeleted()
     {
         var userId = SignIn();
@@ -69,9 +85,24 @@ public class MergeGuestCartTests(PostgresFixture db) : CartTestBase(db)
         Assert.Empty(result.Warnings);
         var userCart = await LoadUserCartAsync(userId);
         Assert.NotNull(userCart);
+        Assert.Equal(userCart.Id, result.CartId);
         Assert.Equal(2, userCart.Items.Count);
         Assert.Null(await LoadCartAsync(guestCart.Id));
         Assert.Equal(1, await CountCartsAsync());
+    }
+
+    [Fact]
+    public async Task UserWithExistingCart_ResultReturnsThatCartsId()
+    {
+        var userId = SignIn();
+        var userCart = await SeedUserCartAsync(userId, (ProductA, 1, 10m));
+        var (guestCart, token) = await SeedGuestCartAsync((ProductB, 1, 20m));
+        Catalog.WithProduct(ProductB, 20m);
+
+        var result = await MergeAsync(token);
+
+        Assert.Equal(userCart.Id, result.CartId);
+        Assert.NotEqual(guestCart.Id, result.CartId);
     }
 
     [Fact]

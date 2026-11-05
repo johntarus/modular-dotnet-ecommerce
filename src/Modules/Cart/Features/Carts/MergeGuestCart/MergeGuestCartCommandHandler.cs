@@ -89,7 +89,7 @@ internal sealed class MergeGuestCartCommandHandler(
         // 4. Delete guest cart
         context.Remove(guestCart);
         await context.SaveChangesAsync(cancellationToken);
-        return new MergeResult(guestCart.Id, mergedCount, warnings);
+        return new MergeResult(userCart.Id, mergedCount, warnings);
             
     }
 }

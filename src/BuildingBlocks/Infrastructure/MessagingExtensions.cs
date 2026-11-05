@@ -22,8 +22,9 @@ public static class MessagingExtensions
 
                 var username = configuration["RabbitMq:Username"] ?? "guest";
                 var password = configuration["RabbitMq:Password"] ?? "guest";
+                var port = ushort.TryParse(configuration["RabbitMq:Port"], out var p) ? p : (ushort)5672;
 
-                cfg.Host(host, "/", h =>
+                cfg.Host(host, port, "/", h =>
                 {
                     h.Username(username);
                     h.Password(password);
