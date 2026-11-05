@@ -3,6 +3,7 @@ using Catalog.Features.Products.DeleteProduct;
 using Catalog.Features.Products.GetProductById;
 using Catalog.Features.Products.GetProducts;
 using Catalog.Features.Products.UpdateProduct;
+using BuildingBlocks.Infrastructure.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ public static class ProductEndpoints
             .WithTags("Products");
         group.MapPost(
             "/",
-            CreateProduct);
+            CreateProduct).RequireAuthorization(AuthPolicies.CanManageCatalog);
         group.MapGet(
             "/",
             GetProducts);
@@ -29,10 +30,10 @@ public static class ProductEndpoints
             GetProductById);
         group.MapPut(
             "/{id:guid}",
-            UpdateProduct);
+            UpdateProduct).RequireAuthorization(AuthPolicies.CanManageCatalog);
         group.MapDelete(
             "/{id:guid}",
-            DeleteProduct);
+            DeleteProduct).RequireAuthorization(AuthPolicies.CanManageCatalog);
 
         return group;
     }

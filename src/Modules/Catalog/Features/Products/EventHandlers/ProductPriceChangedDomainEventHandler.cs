@@ -14,7 +14,7 @@ public class ProductPriceChangedDomainEventHandler : INotificationHandler<Produc
         _eventBus = eventBus;
     }
 
-    public Task Handle(ProductPriceChangedDomainEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(ProductPriceChangedDomainEvent notification, CancellationToken cancellationToken)
     {
         var integrationEvent = new ProductPriceChangedIntegrationEvent(
             notification.ProductId,
@@ -22,9 +22,7 @@ public class ProductPriceChangedDomainEventHandler : INotificationHandler<Produc
             notification.NewPrice,
             notification.OccurredAt);
 
-        //  Publish integrationEvent to event bus
-        _eventBus.PublishAsync(integrationEvent, cancellationToken);
-        
-        return Task.CompletedTask;
+        // Awaited so the message is written to the outbox before CatalogDbContext saves (same transaction)
+        await _eventBus.PublishAsync(integrationEvent, cancellationToken);
     }
 }

@@ -3,6 +3,7 @@ using Catalog.Features.Categories.DeleteCategory;
 using Catalog.Features.Categories.GetCategories;
 using Catalog.Features.Categories.GetCategoryById;
 using Catalog.Features.Categories.UpdateCategory;
+using BuildingBlocks.Infrastructure.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,11 +18,11 @@ public static class CategoryEndpoints
     {
         var group = app.MapGroup("/categories")
             .WithTags("Categories");
-        group.MapPost("/", CreateCategory);
+        group.MapPost("/", CreateCategory).RequireAuthorization(AuthPolicies.CanManageCatalog);
         group.MapGet("/{id:guid}", GetCategoryById);
         group.MapGet("/", GetCategories);
-        group.MapPut("/{id:guid}", UpdateCategory);
-        group.MapDelete("/{id:guid}", DeleteCategory);
+        group.MapPut("/{id:guid}", UpdateCategory).RequireAuthorization(AuthPolicies.CanManageCatalog);
+        group.MapDelete("/{id:guid}", DeleteCategory).RequireAuthorization(AuthPolicies.CanManageCatalog);
         return group;
     }
     private static async Task<IResult> CreateCategory(

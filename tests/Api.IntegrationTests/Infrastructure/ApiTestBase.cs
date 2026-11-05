@@ -15,12 +15,16 @@ public abstract class ApiTestBase(ApiFactory factory) : IAsyncLifetime
     /// <summary>A client with no identity and no cart token.</summary>
     protected HttpClient Anonymous() => Factory.CreateClient();
 
-    protected HttpClient SignedIn(Guid? userId = null)
+    protected HttpClient SignedIn(Guid? userId = null, params string[] roles)
     {
         var client = Factory.CreateClient();
         client.DefaultRequestHeaders.Add(TestAuthHandler.UserHeader, (userId ?? Guid.NewGuid()).ToString());
+        if (roles.Length > 0)
+            client.DefaultRequestHeaders.Add(TestAuthHandler.RolesHeader, string.Join(',', roles));
         return client;
     }
+
+    protected HttpClient Admin() => SignedIn(roles: "Admin");
 
     protected static HttpClient WithCartToken(HttpClient client, string token)
     {
@@ -35,7 +39,7 @@ public abstract class ApiTestBase(ApiFactory factory) : IAsyncLifetime
     /// </summary>
     protected async Task<Guid> CreateProductAsync(decimal price, int stock)
     {
-        var admin = Anonymous();
+        var admin = Admin();
 
         var categoryResponse = await admin.PostAsJsonAsync("/api/catalog/categories",
             new { Name = $"Category {Guid.NewGuid():N}", Description = "Test category" });

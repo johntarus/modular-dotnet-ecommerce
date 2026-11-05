@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Auth;
 using Inventory.Features.Inventory.AdjustStock;
 using Inventory.Features.Inventory.GetInventory;
 using Inventory.Features.Inventory.GetInventoryById;
@@ -18,8 +19,8 @@ public static class InventoryEndpoints
             .WithTags("Inventory");
         group.MapGet("/{id:guid}", GetInventoryById);
         group.MapGet("/", GetInventories);
-        group.MapPatch("/{id:guid}/adjustments", AdJustStock);
-        group.MapPut("/{id:guid}/stock", SetStock);
+        group.MapPatch("/{id:guid}/adjustments", AdJustStock).RequireAuthorization(AuthPolicies.CanAdjustStock);
+        group.MapPut("/{id:guid}/stock", SetStock).RequireAuthorization(AuthPolicies.CanAdjustStock);
         return group;
     }
 

@@ -12,6 +12,9 @@ public class InventoryItem : BaseEntity
 
     public bool IsDeleted { get; private set; }
 
+    /// <summary>Concurrency token (Postgres xmin): stops concurrent stock changes overwriting each other.</summary>
+    public uint Version { get; private set; }
+
     private InventoryItem()
     {
     }

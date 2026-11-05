@@ -12,6 +12,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.HasKey(i => i.ProductId);
         builder.Property(i => i.QuantityOnHand).IsRequired();
         builder.Property(i => i.QuantityReserved).IsRequired();
+        builder.Property(i => i.Version).IsRowVersion();
         builder.HasQueryFilter(i => !i.IsDeleted);
 
     }

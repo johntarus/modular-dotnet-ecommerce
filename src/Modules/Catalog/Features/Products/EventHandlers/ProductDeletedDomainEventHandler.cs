@@ -14,15 +14,13 @@ public class ProductDeletedDomainEventHandler : INotificationHandler<ProductDele
         _eventBus = eventBus;
     }
 
-    public Task Handle(ProductDeletedDomainEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(ProductDeletedDomainEvent notification, CancellationToken cancellationToken)
     {
         var integrationEvent = new ProductDeletedIntegrationEvent(
             notification.ProductId,
             notification.OccurredAt);
 
-        //: Publish integrationEvent to event bus
-        _eventBus.PublishAsync(integrationEvent, cancellationToken);
-        
-        return Task.CompletedTask;
+        // Awaited so the message is written to the outbox before CatalogDbContext saves (same transaction)
+        await _eventBus.PublishAsync(integrationEvent, cancellationToken);
     }
 }

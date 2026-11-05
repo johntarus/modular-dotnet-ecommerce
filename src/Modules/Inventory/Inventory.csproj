@@ -7,6 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <InternalsVisibleTo Include="Inventory.UnitTests" />
+      <InternalsVisibleTo Include="Inventory.IntegrationTests" />
+      <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="EntityFrameworkCore.Exceptions.PostgreSQL" Version="10.0.1" />
       <PackageReference Include="Grpc.AspNetCore" Version="2.84.0" />
       <PackageReference Include="MassTransit.Abstractions" Version="8.5.11" />

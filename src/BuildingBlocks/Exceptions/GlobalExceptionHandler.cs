@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Exceptions;
@@ -36,9 +37,12 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Type = type,
             Title = title,
             Status = statusCode,
-            Detail = statusCode == StatusCodes.Status500InternalServerError
-                ? "An unexpected error occurred."
-                : exception.Message,
+            Detail = exception switch
+            {
+                _ when statusCode == StatusCodes.Status500InternalServerError => "An unexpected error occurred.",
+                DbUpdateConcurrencyException => "The record was changed by another request. Reload it and try again.",
+                _ => exception.Message
+            },
             TraceId = traceId,
             Errors = exception is ValidationException ve ? ve.Errors : null,
         };
@@ -88,6 +92,11 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
 
             ConflictException =>
+                (409, "Conflict",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
+
+            // Optimistic concurrency (xmin) — someone else changed the record first; the client should retry
+            DbUpdateConcurrencyException =>
                 (409, "Conflict",
                     "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
 
