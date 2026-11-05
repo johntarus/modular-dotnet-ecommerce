@@ -46,7 +46,7 @@ public static class CartEndpoints
         return Results.Ok(new
         {
             result.CartId,
-            IssuedGuestToken = result.IssuedGuestToken,
+            result.IssuedGuestToken,
             Message = "Item added to cart successfully"
         });
     }

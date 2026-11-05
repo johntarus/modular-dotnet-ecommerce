@@ -8,6 +8,6 @@ internal sealed class SetItemQuantityCommandValidator : AbstractValidator<SetIte
     public SetItemQuantityCommandValidator()
     {
         RuleFor(x => x.ProductId).NotEmpty();
-        RuleFor(x => x.Quantity).InclusiveBetween(0, CartItem.MaxQuantity);
+        RuleFor(x => x.Quantity).InclusiveBetween(1, CartItem.MaxQuantity);
     }
 }
