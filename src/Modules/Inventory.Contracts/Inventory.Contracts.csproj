@@ -21,8 +21,5 @@
     <ItemGroup>
         <Protobuf Include="Protos\inventory.proto" GrpcServices="Both" />
     </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\Catalog\Catalog.csproj" />
-    </ItemGroup>
 
 </Project>

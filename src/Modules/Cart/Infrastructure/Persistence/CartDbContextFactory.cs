@@ -1,11 +1,10 @@
-using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace Cart.Infrastructure.Persistence;
 
-internal class CatalogDbContextFactory : IDesignTimeDbContextFactory<CartDbContext>
+internal class CartDbContextFactory : IDesignTimeDbContextFactory<CartDbContext>
 {
     public CartDbContext CreateDbContext(string[] args)
     {

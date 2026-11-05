@@ -38,12 +38,6 @@ public class ShoppingCart : BaseEntity
         ExpiresAt = DateTime.UtcNow.AddHours(24),
     };
 
-    public void MergeFrom(ShoppingCart guestCart)
-    {
-        foreach (var item in guestCart.Items)
-            AddItem(item.ProductId, item.Quantity, item.UnitPrice);
-    }
-
     public void AddItem(Guid productId, int quantity, decimal unitPrice)
     {
         if (quantity <= 0) throw new ValidationException("Quantity must be greater than zero.");
@@ -85,7 +79,7 @@ public class ShoppingCart : BaseEntity
             x => x.ProductId == productId);
 
         if (item is null)
-            throw new ValidationException("The product does not exist in the cart.");
+            throw new NotFoundException("The product does not exist in the cart.");
 
         _items.Remove(item);
 

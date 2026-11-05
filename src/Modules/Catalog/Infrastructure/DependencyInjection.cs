@@ -1,5 +1,6 @@
 using BuildingBlocks.EventBus;
 using BuildingBlocks.Infrastructure;
+using Catalog.Contracts;
 using Catalog.Infrastructure.Messaging;
 using Catalog.Infrastructure.Persistence;
 using FluentValidation;
@@ -18,6 +19,7 @@ internal static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IEventBus, EventBus>();
+        services.AddScoped<ICatalogApi, CatalogApi>();
         services.AddMassTransit(x =>
         {
             x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>

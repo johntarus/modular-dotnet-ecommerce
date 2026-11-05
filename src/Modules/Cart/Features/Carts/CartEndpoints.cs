@@ -36,13 +36,17 @@ public static class CartEndpoints
     }
 
     private static async Task<IResult> AddItemToCart(
+        HttpContext httpContext,
+        [FromHeader(Name = "X-Cart-Token")] string? guestToken,
         [FromBody] AddItemToCartRequest request, ISender sender, CancellationToken ct)
     {
         var result = await sender.Send(new AddItemToCartCommand(request.ProductId, request.Quantity), ct);
+        if(result.IssuedGuestToken is not null)
+            httpContext.Response.Headers["X-Cart-Token"] = result.IssuedGuestToken;
         return Results.Ok(new
         {
             result.CartId,
-            result.IssuedGuestToken,
+            IssuedGuestToken = result.IssuedGuestToken,
             Message = "Item added to cart successfully"
         });
     }
@@ -66,9 +70,9 @@ public static class CartEndpoints
         return Results.NoContent();
     }
 
-    public static async Task<IResult> MergeGuestCart(ISender sender, CancellationToken ct)
+    private static async Task<IResult> MergeGuestCart([FromHeader(Name = "X-Cart-Token")] string? guestToken, ISender sender, CancellationToken ct)
     {
-        var result = await sender.Send(new MergeGuestCartCommand(),  ct);
-        return Results.NoContent();
+        var result = await sender.Send(new MergeGuestCartCommand(guestToken),  ct);
+        return Results.Ok(result);
     }
 }

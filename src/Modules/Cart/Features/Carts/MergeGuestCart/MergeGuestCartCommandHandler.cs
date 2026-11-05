@@ -1,6 +1,7 @@
 using BuildingBlocks.Infrastructure.CurrentUser;
 using Cart.Domain.Entities;
 using Cart.Infrastructure.Persistence;
+using Catalog.Contracts;
 using Inventory.Contracts.Grpc;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ internal sealed class MergeGuestCartCommandHandler(
     CartDbContext context,
     ICurrentUser currentUser,
     IHttpContextAccessor httpContextAccessor,
+    ICatalogApi catalogApi,
     InventoryGrpc.InventoryGrpcClient inventoryClient) : IRequestHandler<MergeGuestCartCommand, MergeResult>
 {
     public async Task<MergeResult> Handle(MergeGuestCartCommand request, CancellationToken cancellationToken)
@@ -47,12 +49,30 @@ internal sealed class MergeGuestCartCommandHandler(
 
         foreach (var guestItem in guestCart.Items)
         {
-            // Re-check current stock at merge time
+            // Re-price from the catalog; the guest cart's stored price may be stale
+            var product = await catalogApi.GetProductByIdAsync(guestItem.ProductId, cancellationToken);
+            if (product is null)
+            {
+                warnings.Add($"Item {guestItem.ProductId} skipped: product is no longer available.");
+                continue;
+            }
+
+            // Cap at the per-item limit instead of letting the whole merge fail
+            var existingQuantity = userCart.Items
+                .FirstOrDefault(i => i.ProductId == guestItem.ProductId)?.Quantity ?? 0;
+            var quantityToAdd = Math.Min(guestItem.Quantity, CartItem.MaxQuantity - existingQuantity);
+            if (quantityToAdd <= 0)
+            {
+                warnings.Add($"Item {guestItem.ProductId} skipped: cart already holds the maximum of {CartItem.MaxQuantity}.");
+                continue;
+            }
+
+            // Re-check current stock at merge time against the resulting total in the user's cart
             var stock = await inventoryClient.CheckAvailabilityAsync(
                 new CheckAvailabilityRequest
                 {
                     ProductId = guestItem.ProductId.ToString(),
-                    RequestedQuantity = guestItem.Quantity
+                    RequestedQuantity = existingQuantity + quantityToAdd
                 }, cancellationToken: cancellationToken);
             if (!stock.IsAvailable)
             {
@@ -60,7 +80,9 @@ internal sealed class MergeGuestCartCommandHandler(
                 continue;
             }
             
-            userCart.AddItem(guestItem.ProductId, guestItem.Quantity, guestItem.UnitPrice);
+            userCart.AddItem(guestItem.ProductId, quantityToAdd, product.Price);
+            if (quantityToAdd < guestItem.Quantity)
+                warnings.Add($"Item {guestItem.ProductId} quantity reduced from {guestItem.Quantity} to {quantityToAdd}: maximum per item is {CartItem.MaxQuantity}.");
             mergedCount++;
         }
         
