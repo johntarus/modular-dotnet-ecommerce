@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Inventory.Features.Inventory.SetStock;
 
-public class SetStockCommandValidator : AbstractValidator<SetStockCommand>
+internal sealed class SetStockCommandValidator : AbstractValidator<SetStockCommand>
 {
     public SetStockCommandValidator()
     {

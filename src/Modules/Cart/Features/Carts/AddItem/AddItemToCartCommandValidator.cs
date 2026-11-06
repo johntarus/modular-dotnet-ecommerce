@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Cart.Features.Carts.AddItem;
 
-public class AddItemToCartCommandValidator
+internal sealed class AddItemToCartCommandValidator
     : AbstractValidator<AddItemToCartCommand>
 {
     public AddItemToCartCommandValidator()
