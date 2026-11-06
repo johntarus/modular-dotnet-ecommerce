@@ -12,6 +12,9 @@ public class ShoppingCart : BaseEntity
     public DateTime ExpiresAt  { get; private set; }
     public uint Version { get; private set; }
 
+    /// <summary>A guest cart expires this long after its last change.</summary>
+    public static readonly TimeSpan GuestCartLifetime = TimeSpan.FromHours(24);
+
     public ShoppingCart()
     {
     }
@@ -35,7 +38,7 @@ public class ShoppingCart : BaseEntity
         GuestTokenHash = guestToken,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
-        ExpiresAt = DateTime.UtcNow.AddHours(24),
+        ExpiresAt = DateTime.UtcNow.Add(GuestCartLifetime),
     };
 
     public void AddItem(Guid productId, int quantity, decimal unitPrice)
@@ -48,7 +51,7 @@ public class ShoppingCart : BaseEntity
         else
             existingItem.Increase(quantity, unitPrice);
 
-        UpdatedAt = DateTime.UtcNow;
+        MarkUpdated();
     }
     
     public void SetItemQuantity(Guid productId, int quantity)
@@ -67,7 +70,7 @@ public class ShoppingCart : BaseEntity
 
         item.SetQuantity(quantity);
 
-        UpdatedAt = DateTime.UtcNow;
+        MarkUpdated();
     }
 
     public void RemoveItem(Guid productId)
@@ -83,7 +86,15 @@ public class ShoppingCart : BaseEntity
 
         _items.Remove(item);
 
+        MarkUpdated();
+    }
+
+    /// <summary>Records a change; for a guest cart this also pushes its expiry back (sliding expiry).</summary>
+    private void MarkUpdated()
+    {
         UpdatedAt = DateTime.UtcNow;
+        if (GuestTokenHash is not null)
+            ExpiresAt = UpdatedAt.Add(GuestCartLifetime);
     }
 
     public void Clear()
@@ -92,6 +103,6 @@ public class ShoppingCart : BaseEntity
             return;
 
         _items.Clear();
-        UpdatedAt = DateTime.UtcNow;
+        MarkUpdated();
     }
 }

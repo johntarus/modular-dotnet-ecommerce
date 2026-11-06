@@ -3,6 +3,7 @@ using BuildingBlocks.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Npgsql;
 using ValidationException = BuildingBlocks.Exceptions.ValidationException;
 
 namespace Api.IntegrationTests.BuildingBlocks;
@@ -32,6 +33,8 @@ public class GlobalExceptionHandlerTests
         { new NotFoundException("missing"), 404 },
         { new ConflictException("clash"), 409 },
         { new DbUpdateConcurrencyException("expected to affect 1 row(s), but actually affected 0 row(s)"), 409 },
+        { new DbUpdateException("save failed", new PostgresException("duplicate key", "ERROR", "ERROR", "23505")), 409 },
+        { new DbUpdateException("save failed", new PostgresException("not null", "ERROR", "ERROR", "23502")), 500 },
         { new InvalidOperationException("boom"), 500 },
     };
 
@@ -53,6 +56,15 @@ public class GlobalExceptionHandlerTests
         var detail = body.GetProperty("detail").GetString();
         Assert.DoesNotContain("row(s)", detail);
         Assert.Contains("try again", detail);
+    }
+
+    [Fact]
+    public async Task UniqueViolation_HidesDatabaseDetailsFromClient()
+    {
+        var (_, body) = await HandleAsync(new DbUpdateException("save failed",
+            new PostgresException("duplicate key value violates unique constraint \"IX_categories_active_name\"", "ERROR", "ERROR", "23505")));
+
+        Assert.Equal("A record with the same unique value already exists.", body.GetProperty("detail").GetString());
     }
 
     [Fact]

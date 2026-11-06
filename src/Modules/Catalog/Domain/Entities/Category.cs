@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain;
+using BuildingBlocks.Exceptions;
 
 namespace Catalog.Domain.Entities;
 
@@ -15,11 +16,11 @@ public class Category : BaseEntity
     public static Category Create(string name, string? description)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Category Name cannot be empty.", nameof(name));
+            throw new ValidationException("Category Name cannot be empty.");
         return new Category
         {
             Id = Guid.NewGuid(),
-            Name = name,
+            Name = name.Trim(),
             Description = description,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -29,8 +30,8 @@ public class Category : BaseEntity
     public void UpdateDetails(string name, string? description)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Category Name cannot be empty.", nameof(name));
-        Name = name;
+            throw new ValidationException("Category Name cannot be empty.");
+        Name = name.Trim();
         Description = description;
         UpdatedAt = DateTime.UtcNow;
     }

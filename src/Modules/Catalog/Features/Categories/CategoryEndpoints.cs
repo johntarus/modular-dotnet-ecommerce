@@ -31,7 +31,7 @@ public static class CategoryEndpoints
         CancellationToken ct)
     {
         var id = await sender.Send(command, ct);
-        return Results.Created($"/api/categories/{id}", id);
+        return Results.Created($"/api/catalog/categories/{id}", id);
     }
 
     private static async Task<IResult> GetCategoryById(Guid id, [FromServices] ISender sender, CancellationToken ct)

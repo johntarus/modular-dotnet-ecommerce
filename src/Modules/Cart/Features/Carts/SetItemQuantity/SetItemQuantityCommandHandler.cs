@@ -1,27 +1,22 @@
 using BuildingBlocks.Exceptions;
-using BuildingBlocks.Infrastructure.CurrentUser;
+using Cart.Features.Carts.CartResolver;
 using Cart.Infrastructure.Persistence;
 using Inventory.Contracts.Grpc;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cart.Features.Carts.SetItemQuantity;
 
 internal sealed class SetItemQuantityCommandHandler(
     CartDbContext context,
-    ICurrentUser user,
+    ICartResolver cartResolver,
     InventoryGrpc.InventoryGrpcClient inventoryClient)
     : IRequestHandler<SetItemQuantityCommand>
 {
     public async Task Handle(SetItemQuantityCommand request, CancellationToken ct)
     {
-        var userId = user.UserId
-                     ?? throw new ForbiddenException("Sign in to use the cart.");
-        var cart = await context.Carts
-                       .Include(c => c.Items)                     
-                       .FirstOrDefaultAsync(c => c.UserId == userId, ct)
-                   ?? throw new NotFoundException($"Cart for user {userId} was not found.");
+        // Signed-in user or guest (X-Cart-Token); never creates a cart
+        var cart = (await cartResolver.ResolveAsync(createIfMissing: false, ct)).Cart;
 
         // Fail with 404 for a missing item before asking Inventory about it
         if (cart.Items.All(i => i.ProductId != request.ProductId))

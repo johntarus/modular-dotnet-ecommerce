@@ -41,6 +41,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             {
                 _ when statusCode == StatusCodes.Status500InternalServerError => "An unexpected error occurred.",
                 DbUpdateConcurrencyException => "The record was changed by another request. Reload it and try again.",
+                DbUpdateException when IsUniqueViolation(exception) => "A record with the same unique value already exists.",
                 _ => exception.Message
             },
             TraceId = traceId,
@@ -100,6 +101,11 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 (409, "Conflict",
                     "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
 
+            // A unique index rejected the write (e.g. two requests racing past a uniqueness validator)
+            DbUpdateException when IsUniqueViolation(exception) =>
+                (409, "Conflict",
+                    "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
+
             ForbiddenException =>
                 (403, "Forbidden",
                     "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
@@ -112,4 +118,8 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 (500, "Server Error",
                     "https://tools.ietf.org/html/rfc7231#section-6.6.1")
         };
+
+    // 23505 = Postgres unique_violation; DbException.SqlState avoids a hard dependency on Npgsql here
+    private static bool IsUniqueViolation(Exception exception) =>
+        exception.InnerException is System.Data.Common.DbException { SqlState: "23505" };
 }

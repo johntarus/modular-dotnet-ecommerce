@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ internal class UpdateProductCommandHandler(CatalogDbContext context)
 
         if (product is null)
         {
-            throw new KeyNotFoundException($"Product with Id {request.Id} not found.");
+            throw new NotFoundException($"Product with Id {request.Id} not found.");
         }
 
         product.UpdateDetails(request.Name, request.Description, request.CategoryId);

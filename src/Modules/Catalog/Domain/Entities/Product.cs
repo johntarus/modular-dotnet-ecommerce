@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain;
+using BuildingBlocks.Exceptions;
 using BuildingBlocks.Shared;
 using Catalog.Domain.Events;
 
@@ -20,16 +21,18 @@ public class Product : BaseEntity
     public static Product Create(string name, string description, decimal price, Guid categoryId)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Product Name cannot be empty.", nameof(name));
+            throw new ValidationException("Product Name cannot be empty.");
+        if (description is null)
+            throw new ValidationException("Product Description is required.");
         if (price <= 0)
-            throw new ArgumentException("Product Price must be greater than zero.", nameof(price));
+            throw new ValidationException("Product Price must be greater than zero.");
         if (categoryId == Guid.Empty)
-            throw new ArgumentException("Product Category must be provided.", nameof(categoryId));
+            throw new ValidationException("Product Category must be provided.");
 
         var product = new Product
         {
             Id = Guid.NewGuid(),
-            Name = name,
+            Name = name.Trim(),
             Description = description,
             Price = price,
             CategoryId = categoryId,
@@ -50,11 +53,13 @@ public class Product : BaseEntity
     public void UpdateDetails(string name, string description, Guid categoryId)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name cannot be empty.", nameof(name));
+            throw new ValidationException("Name cannot be empty.");
+        if (description is null)
+            throw new ValidationException("Description is required.");
         if(categoryId == Guid.Empty)
-            throw new ArgumentException("Category cannot be empty.", nameof(categoryId));
+            throw new ValidationException("Category cannot be empty.");
 
-        Name = name;
+        Name = name.Trim();
         Description = description;
         CategoryId = categoryId;
         UpdatedAt = DateTime.UtcNow;
@@ -70,7 +75,7 @@ public class Product : BaseEntity
     public void UpdatePrice(decimal price)
     {
         if (price <= 0)
-            throw new ArgumentException("Price must be greater than zero.");
+            throw new ValidationException("Price must be greater than zero.");
 
         var oldPrice = Price;
         Price = price;

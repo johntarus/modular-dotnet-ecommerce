@@ -28,6 +28,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <InternalsVisibleTo Include="Catalog.UnitTests" />
+      <InternalsVisibleTo Include="Catalog.IntegrationTests" />
+      <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.csproj" />
       <ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
     </ItemGroup>

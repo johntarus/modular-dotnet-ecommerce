@@ -51,6 +51,69 @@ public class ShoppingCartTests
         Assert.NotEqual(first.Id, second.Id);
     }
 
+    // ---------- Guest expiry (sliding) ----------
+
+    public static TheoryData<string> Changes => new() { "add", "set", "remove", "clear" };
+
+    private static void Apply(ShoppingCart cart, string change)
+    {
+        switch (change)
+        {
+            case "add": cart.AddItem(ProductB, 1, 5m); break;
+            case "set": cart.SetItemQuantity(ProductA, 3); break;
+            case "remove": cart.RemoveItem(ProductA); break;
+            case "clear": cart.Clear(); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Changes))]
+    public void GuestCart_EveryChange_PushesExpiryTo24HoursAfterThatChange(string change)
+    {
+        var cart = ShoppingCart.CreateForGuest("hash");
+        cart.AddItem(ProductA, 1, 10m);
+
+        Apply(cart, change);
+
+        Assert.Equal(cart.UpdatedAt.Add(ShoppingCart.GuestCartLifetime), cart.ExpiresAt);
+    }
+
+    [Fact]
+    public void GuestCart_ExpiryMovesForward_WhenChangedLater()
+    {
+        var cart = ShoppingCart.CreateForGuest("hash");
+        var initialExpiry = cart.ExpiresAt;
+        Thread.Sleep(5);
+
+        cart.AddItem(ProductA, 1, 10m);
+
+        Assert.True(cart.ExpiresAt > initialExpiry);
+    }
+
+    [Theory]
+    [MemberData(nameof(Changes))]
+    public void UserCart_NeverGetsAnExpiry(string change)
+    {
+        var cart = ShoppingCart.CreateForUser(UserId);
+        cart.AddItem(ProductA, 1, 10m);
+
+        Apply(cart, change);
+
+        Assert.Equal(default, cart.ExpiresAt);
+    }
+
+    [Fact]
+    public void GuestCart_ClearingAnEmptyCart_DoesNotExtendExpiry()
+    {
+        var cart = ShoppingCart.CreateForGuest("hash");
+        var expiry = cart.ExpiresAt;
+        Thread.Sleep(5);
+
+        cart.Clear();
+
+        Assert.Equal(expiry, cart.ExpiresAt);
+    }
+
     // ---------- AddItem ----------
 
     [Fact]

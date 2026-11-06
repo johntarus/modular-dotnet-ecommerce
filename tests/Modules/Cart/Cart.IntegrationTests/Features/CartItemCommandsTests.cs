@@ -15,7 +15,7 @@ public class SetItemQuantityTests(PostgresFixture db) : CartTestBase(db)
     private async Task SetAsync(Guid productId, int quantity)
     {
         await using var context = NewContext();
-        var handler = new SetItemQuantityCommandHandler(context, CurrentUser, Inventory);
+        var handler = new SetItemQuantityCommandHandler(context, NewResolver(context), Inventory);
         await handler.Handle(new SetItemQuantityCommand(productId, quantity), CancellationToken.None);
     }
 
@@ -62,9 +62,28 @@ public class SetItemQuantityTests(PostgresFixture db) : CartTestBase(db)
     }
 
     [Fact]
-    public async Task Guest_IsForbidden()
+    public async Task Guest_WithToken_UpdatesTheirCart()
     {
-        await Assert.ThrowsAsync<ForbiddenException>(() => SetAsync(ProductId, 1));
+        var (cart, token) = await SeedGuestCartAsync((ProductId, 2, 10m));
+        SendGuestToken(token);
+
+        await SetAsync(ProductId, 5);
+
+        Assert.Equal(5, Assert.Single((await LoadCartAsync(cart.Id))!.Items).Quantity);
+    }
+
+    [Fact]
+    public async Task Guest_WithoutToken_ThrowsBadRequest()
+    {
+        await Assert.ThrowsAsync<BadHttpRequestException>(() => SetAsync(ProductId, 1));
+    }
+
+    [Fact]
+    public async Task Guest_WithUnknownToken_ThrowsNotFound()
+    {
+        SendGuestToken("unknown-token");
+
+        await Assert.ThrowsAsync<NotFoundException>(() => SetAsync(ProductId, 1));
     }
 }
 
@@ -73,7 +92,7 @@ public class RemoveItemTests(PostgresFixture db) : CartTestBase(db)
     private async Task RemoveAsync(Guid productId)
     {
         await using var context = NewContext();
-        await new RemoveItemCommandHandler(context, CurrentUser)
+        await new RemoveItemCommandHandler(context, NewResolver(context))
             .Handle(new RemoveItemCommand(productId), CancellationToken.None);
     }
 
@@ -100,9 +119,29 @@ public class RemoveItemTests(PostgresFixture db) : CartTestBase(db)
     }
 
     [Fact]
-    public async Task Guest_IsForbidden()
+    public async Task UserWithoutCart_ThrowsNotFound()
     {
-        await Assert.ThrowsAsync<ForbiddenException>(() => RemoveAsync(Guid.NewGuid()));
+        SignIn();
+
+        await Assert.ThrowsAsync<NotFoundException>(() => RemoveAsync(Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task Guest_WithToken_RemovesFromTheirCart()
+    {
+        var product = Guid.NewGuid();
+        var (cart, token) = await SeedGuestCartAsync((product, 1, 10m));
+        SendGuestToken(token);
+
+        await RemoveAsync(product);
+
+        Assert.Empty((await LoadCartAsync(cart.Id))!.Items);
+    }
+
+    [Fact]
+    public async Task Guest_WithoutToken_ThrowsBadRequest()
+    {
+        await Assert.ThrowsAsync<BadHttpRequestException>(() => RemoveAsync(Guid.NewGuid()));
     }
 }
 
@@ -111,7 +150,7 @@ public class ClearCartTests(PostgresFixture db) : CartTestBase(db)
     private async Task ClearAsync()
     {
         await using var context = NewContext();
-        await new ClearCartCommandHandler(context, CurrentUser).Handle(new ClearCartCommand(), CancellationToken.None);
+        await new ClearCartCommandHandler(context, NewResolver(context)).Handle(new ClearCartCommand(), CancellationToken.None);
     }
 
     [Fact]
@@ -136,9 +175,32 @@ public class ClearCartTests(PostgresFixture db) : CartTestBase(db)
     }
 
     [Fact]
-    public async Task Guest_IsForbidden()
+    public async Task Guest_WithToken_ClearsTheirCart()
     {
-        await Assert.ThrowsAsync<ForbiddenException>(ClearAsync);
+        var (cart, token) = await SeedGuestCartAsync((Guid.NewGuid(), 1, 10m), (Guid.NewGuid(), 2, 5m));
+        SendGuestToken(token);
+
+        await ClearAsync();
+
+        Assert.Empty((await LoadCartAsync(cart.Id))!.Items);
+    }
+
+    [Fact]
+    public async Task Guest_WithoutToken_ThrowsBadRequest()
+    {
+        await Assert.ThrowsAsync<BadHttpRequestException>(ClearAsync);
+    }
+
+    [Fact]
+    public async Task Guest_ClearingCart_DoesNotTouchSomeoneElsesCart()
+    {
+        var (_, token) = await SeedGuestCartAsync((Guid.NewGuid(), 1, 10m));
+        var (other, _) = await SeedGuestCartAsync((Guid.NewGuid(), 1, 10m));
+        SendGuestToken(token);
+
+        await ClearAsync();
+
+        Assert.Single((await LoadCartAsync(other.Id))!.Items);
     }
 }
 

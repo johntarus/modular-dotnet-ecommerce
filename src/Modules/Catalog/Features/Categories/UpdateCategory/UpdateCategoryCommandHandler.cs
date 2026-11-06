@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ internal class UpdateCategoryCommandHandler(
 
         if (category is null)
         {
-            throw new KeyNotFoundException(
+            throw new NotFoundException(
                 $"Category with ID '{request.Id}' was not found.");
         }
 

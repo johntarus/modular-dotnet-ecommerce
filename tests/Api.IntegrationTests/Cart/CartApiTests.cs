@@ -90,13 +90,35 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
     }
 
     [Fact]
-    public async Task Guest_CannotChangeQuantity_Returns403()
+    public async Task Guest_WithToken_CanChangeQuantity_RemoveAndClear()
+    {
+        var a = await CreateProductAsync(10m, 10);
+        var b = await CreateProductAsync(20m, 10);
+        var guest = Anonymous();
+        var token = (await ReadJsonAsync(await AddAsync(guest, a, 1))).GetProperty("issuedGuestToken").GetString()!;
+        WithCartToken(guest, token);
+        await EnsureSuccessAsync(await AddAsync(guest, b, 1));
+
+        Assert.Equal(HttpStatusCode.NoContent, (await SetQuantityAsync(guest, a, 4)).StatusCode);
+        var item = (await GetCartAsync(guest)).GetProperty("items").EnumerateArray().Single(i => i.GetProperty("productId").GetGuid() == a);
+        Assert.Equal(4, item.GetProperty("quantity").GetInt32());
+
+        Assert.Equal(HttpStatusCode.NoContent, (await guest.DeleteAsync($"/cart/items/{a}")).StatusCode);
+        Assert.Equal(1, (await GetCartAsync(guest)).GetProperty("items").GetArrayLength());
+
+        Assert.Equal(HttpStatusCode.NoContent, (await guest.DeleteAsync("/cart/cart")).StatusCode);
+        Assert.Equal(0, (await GetCartAsync(guest)).GetProperty("items").GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Guest_WithoutToken_ChangingCart_Returns400()
     {
         var productId = await CreateProductAsync(10m, 10);
+        var guest = Anonymous();
 
-        var response = await SetQuantityAsync(Anonymous(), productId, 2);
-
-        await AssertProblemAsync(response, HttpStatusCode.Forbidden);
+        await AssertProblemAsync(await SetQuantityAsync(guest, productId, 2), HttpStatusCode.BadRequest);
+        await AssertProblemAsync(await guest.DeleteAsync($"/cart/items/{productId}"), HttpStatusCode.BadRequest);
+        await AssertProblemAsync(await guest.DeleteAsync("/cart/cart"), HttpStatusCode.BadRequest);
     }
 
     // ---------- Add item: errors ----------
