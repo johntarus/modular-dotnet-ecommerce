@@ -19,6 +19,21 @@ internal class CatalogDbContext(DbContextOptions<CatalogDbContext> options, IPub
         modelBuilder.AddInboxStateEntity();
         modelBuilder.AddOutboxMessageEntity();
         modelBuilder.AddOutboxStateEntity();
+        
+        // Enable the Postgres extension
+        modelBuilder.HasPostgresExtension("vector");
+
+        // Map the Vector property to the pgvector column type
+        modelBuilder.Entity<Product>()
+            .Property(p => p.Embedding)
+            .HasColumnType("vector(1536)"); // 1536 = text-embedding-3-small dimension
+
+        // Optional: Add an index for faster cosine distance searches
+        modelBuilder.Entity<Product>()
+            .HasIndex(p => p.Embedding)
+            .HasMethod("ivfflat") // or "hnsw" on pgvector 0.5+
+            .HasOperators("vector_cosine_ops");
+
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

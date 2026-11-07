@@ -5,7 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    </PropertyGroup>
+      <UserSecretsId>2655ab46-1003-46e7-9398-a915f7063404</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
       <Folder Include="Domain\ValueObjects\" />
@@ -24,6 +25,7 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+      <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.3.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.3" />
     </ItemGroup>
 
@@ -35,6 +37,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\Ai.Contracts\Ai.Contracts.csproj" />
       <ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
     </ItemGroup>
 

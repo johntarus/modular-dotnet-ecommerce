@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    </PropertyGroup>
+      <UserSecretsId>bd5daed1-f394-4709-835a-cca40b8c08da</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Grpc.AspNetCore" Version="2.84.0" />
@@ -17,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Modules\Ai\Ai.csproj" />
         <ProjectReference Include="..\Modules\Cart\Cart.csproj" />
         <ProjectReference Include="..\Modules\Catalog\Catalog.csproj" />
         <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />

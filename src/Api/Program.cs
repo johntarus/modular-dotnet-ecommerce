@@ -1,3 +1,4 @@
+using Ai;
 using BuildingBlocks.Infrastructure;
 using BuildingBlocks.Infrastructure.Auth;
 using BuildingBlocks.Infrastructure.Middleware;
@@ -20,7 +21,8 @@ builder.Services.AddGrpc();
 builder.Services.AddBuildingBlocks(builder.Configuration,
     typeof(CatalogModule).Assembly,
     typeof(InventoryModule).Assembly,
-    typeof(CartModule).Assembly);
+    typeof(CartModule).Assembly,
+    typeof(AiModule).Assembly);
 
 builder.Services.AddAuth(builder.Configuration, builder.Environment);
 builder.Services.AddSwaggerDocumentation(builder.Configuration);
@@ -31,6 +33,7 @@ builder.Host.AddCustomSerilog();
 builder.Services.AddCatalog(builder.Configuration);
 builder.Services.AddInventory(builder.Configuration);
 builder.Services.AddCart(builder.Configuration);
+builder.Services.AddAiModule(builder.Configuration);
 
 builder.Services.AddMessaging(builder.Configuration);
 

@@ -17,6 +17,16 @@
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
       - Otel__Endpoint=http://otel-collector:4317
+      - Ai__Provider=Ollama
+      - Ai__OllamaBaseUrl=http://ollama:11434
+      - Ai__EmbeddingModel=nomic-embed-text:v1.5
+      - Ai__EmbeddingDimensions=768
+      - Ai__ChatModel=qwen2.5:3b
+      
+#      - Ai__ApiKey=${OPENAI_API_KEY}
+#      - Ai__EmbeddingModel=text-embedding-3-small
+#      - Ai__ChatModel=gpt-4o-mini
+    
 #      - Auth__Authority=http://keycloak:8080/realms/ecommerce
 #      - Auth__PublicAuthority=http://localhost:8080/realms/ecommerce
 #      - Auth__Audience=ecommerce-api
@@ -30,7 +40,7 @@
     restart: unless-stopped
 
   postgres:
-    image: postgres:17
+    image: pgvector/pgvector:pg17
     container_name: ecommerce-postgres
     environment:
       POSTGRES_USER: postgres
@@ -218,6 +228,17 @@
       - prometheus
       - loki
     restart: unless-stopped
+    
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ecommerce-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=* # Required for API container communication
+    restart: unless-stopped
 
 volumes:
   postgres_data:
@@ -227,3 +248,4 @@ volumes:
   prometheus_data:
   grafana_data:
   rabbitmq_data:
+  ollama_data:

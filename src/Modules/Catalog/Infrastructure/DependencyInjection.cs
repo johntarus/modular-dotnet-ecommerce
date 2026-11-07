@@ -1,9 +1,7 @@
 using BuildingBlocks.EventBus;
-using BuildingBlocks.Infrastructure;
 using Catalog.Contracts;
 using Catalog.Infrastructure.Messaging;
 using Catalog.Infrastructure.Persistence;
-using FluentValidation;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,13 +11,17 @@ namespace Catalog.Infrastructure;
 
 internal static class DependencyInjection
 {
-    public static IServiceCollection AddCatalogInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCatalogInfrastructure(
+        this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<CatalogDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"),
+                o => o.UseVector()));
 
         services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<ICatalogApi, CatalogApi>();
+
         services.AddMassTransit(x =>
         {
             x.AddEntityFrameworkOutbox<CatalogDbContext>(o =>
@@ -28,9 +30,6 @@ internal static class DependencyInjection
                 o.UseBusOutbox();
             });
         });
-
-        // MediatR handlers, pipeline behaviors and validators for this module are
-        // registered centrally in AddBuildingBlocks (Program.cs passes this assembly).
 
         return services;
     }

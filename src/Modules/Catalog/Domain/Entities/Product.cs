@@ -1,7 +1,7 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Exceptions;
-using BuildingBlocks.Shared;
 using Catalog.Domain.Events;
+using Pgvector;
 
 namespace Catalog.Domain.Entities;
 
@@ -11,8 +11,9 @@ public class Product : BaseEntity
     public string Description { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
     public Guid CategoryId { get; private set; }
-
     public bool IsDeleted { get; private set; }
+    public Vector? Embedding { get; private set; }
+    public DateTime? EmbeddingGeneratedAt { get; private set; }
 
     private Product()
     {
@@ -63,7 +64,23 @@ public class Product : BaseEntity
         Description = description;
         CategoryId = categoryId;
         UpdatedAt = DateTime.UtcNow;
+        
+        var textChanged =
+            !string.Equals(Name, name, StringComparison.Ordinal) ||
+            !string.Equals(Description, description, StringComparison.Ordinal);
 
+        Name = name;
+        Description = description;
+        CategoryId = categoryId;
+        UpdatedAt = DateTime.UtcNow;
+
+        // invalidate stale embedding
+        if (textChanged)
+        {
+            Embedding = null;
+            EmbeddingGeneratedAt = null;
+        }
+        
         AddDomainEvent(new ProductUpdatedDomainEvent(
             Id,
             Name,
@@ -99,4 +116,20 @@ public class Product : BaseEntity
 
         AddDomainEvent(new ProductDeletedDomainEvent(Id));
     }
+    
+    public void SetEmbedding(Vector embedding)
+    {
+        ArgumentNullException.ThrowIfNull(embedding);
+
+        if (embedding.ToArray().Length != 768)
+            throw new ArgumentException(
+                $"Embedding must be 1536 dimensions, got {embedding.ToArray().Length}.",
+                nameof(embedding));
+
+        Embedding = embedding;
+        EmbeddingGeneratedAt = DateTime.UtcNow;
+        AddDomainEvent(new ProductEmbeddingGeneratedDomainEvent(Id, EmbeddingGeneratedAt.Value));
+    }
+    public string GetEmbeddingText()
+        => $"search_document: {Name}. {Description}".Trim();
 }

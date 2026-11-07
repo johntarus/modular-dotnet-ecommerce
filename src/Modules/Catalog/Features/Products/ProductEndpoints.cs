@@ -4,6 +4,7 @@ using Catalog.Features.Products.GetProductById;
 using Catalog.Features.Products.GetProducts;
 using Catalog.Features.Products.UpdateProduct;
 using BuildingBlocks.Infrastructure.Auth;
+using Catalog.Features.Products.SemanticSearch;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,8 @@ public static class ProductEndpoints
         group.MapDelete(
             "/{id:guid}",
             DeleteProduct).RequireAuthorization(AuthPolicies.CanManageCatalog);
+        group.MapPost("/search-semantic", Search);
+
 
         return group;
     }
@@ -88,5 +91,20 @@ public static class ProductEndpoints
     {
         await sender.Send(new DeleteProductCommand(id), ct);
         return Results.NoContent();
+    }
+    
+    private static async Task<IResult> Search(
+        [FromBody] SemanticSearchRequest request,
+        ISender sender,
+        CancellationToken ct)
+    {
+        var results = await sender.Send(new SemanticSearchQuery(request.Query, request.Limit), ct);
+
+        return Results.Ok(new
+        {
+            Query = request.Query,
+            Count = results.Count,
+            Results = results
+        });
     }
 }
