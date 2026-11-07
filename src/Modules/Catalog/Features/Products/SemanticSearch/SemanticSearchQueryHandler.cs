@@ -19,7 +19,7 @@ internal sealed class SemanticSearchQueryHandler(
 
         var limit = Math.Clamp(request.Limit, 1, 100);
 
-        var prefixedQuery = $"search_query: {request.Query}";
+        var prefixedQuery = $"Represent this sentence for searching relevant passages: {request.Query}";
         
         // 1. Embed the user's query
         var embeddingResponse = await embeddingService.EmbedAsync(prefixedQuery, ct);

@@ -57,35 +57,27 @@ public class Product : BaseEntity
             throw new ValidationException("Name cannot be empty.");
         if (description is null)
             throw new ValidationException("Description is required.");
-        if(categoryId == Guid.Empty)
+        if (categoryId == Guid.Empty)
             throw new ValidationException("Category cannot be empty.");
 
-        Name = name.Trim();
-        Description = description;
-        CategoryId = categoryId;
-        UpdatedAt = DateTime.UtcNow;
-        
+        var trimmedName = name.Trim();
+
         var textChanged =
-            !string.Equals(Name, name, StringComparison.Ordinal) ||
+            !string.Equals(Name, trimmedName, StringComparison.Ordinal) ||
             !string.Equals(Description, description, StringComparison.Ordinal);
 
-        Name = name;
+        Name = trimmedName;
         Description = description;
         CategoryId = categoryId;
         UpdatedAt = DateTime.UtcNow;
 
-        // invalidate stale embedding
         if (textChanged)
         {
             Embedding = null;
             EmbeddingGeneratedAt = null;
         }
-        
-        AddDomainEvent(new ProductUpdatedDomainEvent(
-            Id,
-            Name,
-            Description,
-            CategoryId));
+
+        AddDomainEvent(new ProductUpdatedDomainEvent(Id, Name, Description, CategoryId));
     }
     
     
@@ -121,7 +113,7 @@ public class Product : BaseEntity
     {
         ArgumentNullException.ThrowIfNull(embedding);
 
-        if (embedding.ToArray().Length != 768)
+        if (embedding.ToArray().Length != 1024)
             throw new ArgumentException(
                 $"Embedding must be 1536 dimensions, got {embedding.ToArray().Length}.",
                 nameof(embedding));
@@ -131,5 +123,5 @@ public class Product : BaseEntity
         AddDomainEvent(new ProductEmbeddingGeneratedDomainEvent(Id, EmbeddingGeneratedAt.Value));
     }
     public string GetEmbeddingText()
-        => $"search_document: {Name}. {Description}".Trim();
+        => $"{Name}. {Description}".Trim();
 }

@@ -15,5 +15,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Price).HasPrecision(18, 2).IsRequired();
         builder.Property(p=>p.CategoryId).IsRequired();
         builder.HasQueryFilter(p => !p.IsDeleted);
+        builder.Property(p => p.Embedding).HasColumnType("vector(1024)");
     }
 }
