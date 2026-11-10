@@ -24,12 +24,12 @@ internal sealed class OllamaEmbeddingService : IEmbeddingService
         var request = new EmbedRequest
         {
             Model = _options.EmbeddingModel,
-            Input = new List<string> { text }   // ← List<string>, not string[]
+            Input = new List<string> { text }
         };
 
         var response = await _client.EmbedAsync(request, ct);
     
-        var floats = response.Embeddings.First().Select(d => (float)d).ToArray();
+        var floats = response.Embeddings.First().Select(d => d).ToArray();
 
         return new EmbeddingResponse(
             Vector: floats,
@@ -53,7 +53,7 @@ internal sealed class OllamaEmbeddingService : IEmbeddingService
         var response = await _client.EmbedAsync(request, ct);
 
         return response.Embeddings.Select(embedding => new EmbeddingResponse(
-            Vector: embedding.Select(d => (float)d).ToArray(),
+            Vector: embedding.Select(d => d).ToArray(),
             Dimensions: embedding.Length,
             InputTokens: 0,
             Model: _options.EmbeddingModel

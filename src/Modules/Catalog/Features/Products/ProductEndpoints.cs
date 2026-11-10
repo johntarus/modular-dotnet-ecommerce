@@ -102,8 +102,8 @@ public static class ProductEndpoints
 
         return Results.Ok(new
         {
-            Query = request.Query,
-            Count = results.Count,
+            request.Query,
+            results.Count,
             Results = results
         });
     }

@@ -115,7 +115,7 @@ public class Product : BaseEntity
 
         if (embedding.ToArray().Length != 1024)
             throw new ArgumentException(
-                $"Embedding must be 1536 dimensions, got {embedding.ToArray().Length}.",
+                $"Embedding must be 1024 dimensions, got {embedding.ToArray().Length}.",
                 nameof(embedding));
 
         Embedding = embedding;

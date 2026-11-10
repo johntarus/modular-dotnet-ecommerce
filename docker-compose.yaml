@@ -19,8 +19,8 @@
       - Otel__Endpoint=http://otel-collector:4317
       - Ai__Provider=Ollama
       - Ai__OllamaBaseUrl=http://ollama:11434
-      - Ai__EmbeddingModel=nomic-embed-text:v1.5
-      - Ai__EmbeddingDimensions=768
+      - Ai__EmbeddingModel=mxbai-embed-large
+      - Ai__EmbeddingDimensions=1024
       - Ai__ChatModel=qwen2.5:3b
       
 #      - Ai__ApiKey=${OPENAI_API_KEY}
