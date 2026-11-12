@@ -26,10 +26,13 @@ public static class OpenTelemetryExtensions
                 .AddSource("MassTransit")
                 .AddOtlpExporter(o => o.Endpoint = otlpEndpoint))
             .WithMetrics(metrics => metrics
+                // .AddMeter(AiMetrics.MeterName)
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
                 .AddProcessInstrumentation()
+                .AddMeter("Ecommerce.Ai")  
+                .AddMeter("Ecommerce.*")
                 .AddOtlpExporter((exporter, reader) =>
                 {
                     exporter.Endpoint = otlpEndpoint;

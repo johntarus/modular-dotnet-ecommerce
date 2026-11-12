@@ -24,6 +24,9 @@ public static class DependencyInjection
         {
             services.AddSingleton<IEmbeddingService, OllamaEmbeddingService>();
             services.AddSingleton<IChatCompletionService, OllamaChatCompletionService>();
+            services.AddSingleton<OllamaChatCompletionService>();
+            services.AddSingleton<IChatCompletionService>(sp => new MeteredChatCompletionService(
+                sp.GetService<OllamaChatCompletionService>()));
         }
         else
         {

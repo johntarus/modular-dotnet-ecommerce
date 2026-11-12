@@ -237,7 +237,11 @@
     volumes:
       - ollama_data:/root/.ollama
     environment:
+      - OLLAMA_KEEP_ALIVE=-1
       - OLLAMA_ORIGINS=* # Required for API container communication
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_FLASH_ATTENTION=1
+      - OLLAMA_NUM_THREAD=8
     restart: unless-stopped
 
 volumes:

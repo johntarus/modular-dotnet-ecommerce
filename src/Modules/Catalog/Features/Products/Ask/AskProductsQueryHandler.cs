@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using Ai.Contracts;
 using Ai.Contracts.Models;
+using BuildingBlocks.Infrastructure.CurrentUser;
 using Catalog.Features.Products.SemanticSearch;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
@@ -9,7 +11,11 @@ using Pgvector.EntityFrameworkCore;
 
 namespace Catalog.Features.Products.Ask;
 
-internal sealed class AskProductsQueryHandler(CatalogDbContext context, IEmbeddingService embeddingService, IChatCompletionService chatCompletionService) : IRequestHandler<AskProductsQuery, AskProductsResult>
+internal sealed class AskProductsQueryHandler(
+    CatalogDbContext context,
+    IEmbeddingService embeddingService,
+    IChatCompletionService chatCompletionService,
+    ICurrentUser currentUser) : IRequestHandler<AskProductsQuery, AskProductsResult>
 {
     private const double MinRelevance = 0.55;
     private const int TopK = 5;
@@ -18,6 +24,9 @@ internal sealed class AskProductsQueryHandler(CatalogDbContext context, IEmbeddi
         AskProductsQuery request, CancellationToken ct
     )
     {
+        // Tag the current Activity — the meter picks this up
+        Activity.Current?.SetTag("ai.feature", "product-ask");
+        Activity.Current?.SetTag("user.id", currentUser.UserId.ToString() ?? "anonymous");
         // 1. RETRIEVE — same semantic search, but filtered
         var queryVector = new Vector((await embeddingService.EmbedAsync(
             $"Represent this sentence for searching relevant passages: {request.Question}", ct)).Vector);
@@ -26,16 +35,14 @@ internal sealed class AskProductsQueryHandler(CatalogDbContext context, IEmbeddi
             .Where(p => p.Embedding != null && !p.IsDeleted)
             .Select(p => new
             {
-
                 p.Id, p.Name, p.Description, p.Price, p.CategoryId,
                 Distance = p.Embedding!.CosineDistance(queryVector)
-
             })
             .Where(r => (1 - r.Distance) >= MinRelevance) // ← filter before RAG
             .OrderBy(r => r.Distance)
             .Take(TopK)
             .ToListAsync(ct);
-        
+
         // 2. If nothing matched, return an honest answer
         if (products.Count == 0)
         {
@@ -43,11 +50,11 @@ internal sealed class AskProductsQueryHandler(CatalogDbContext context, IEmbeddi
                 "I couldn't find any products matching your question. Try rephrasing, or browse the catalog.",
                 new List<SemanticSearchResult>(), 0, 0);
         }
-        
+
         // 3. AUGMENT — build the prompt
         var contextText = string.Join("\n\n", products.Select((p, i) =>
             $"[{i + 1}] {p.Name} — {p.Description} — KES {p.Price:N0}"));
-        
+
         var prompt = $"""
                       You are a shopping assistant. Your job is to RECOMMEND products, 
                       not to list them.
@@ -69,7 +76,7 @@ internal sealed class AskProductsQueryHandler(CatalogDbContext context, IEmbeddi
 
                       RECOMMENDATION:
                       """;
-        
+
         // 4. GENERATE
         var response = await chatCompletionService.CompleteAsync(new[]
         {
@@ -80,7 +87,7 @@ internal sealed class AskProductsQueryHandler(CatalogDbContext context, IEmbeddi
                 "Always be specific about names and prices."),
             ChatMessage.User(prompt)
         }, ct);
-        
+
         return new AskProductsResult(
             response.Content,
             products.Select(p => new SemanticSearchResult(
