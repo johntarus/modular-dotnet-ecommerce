@@ -1,3 +1,4 @@
+using System.Text;
 using Ai.Contracts;
 using Ai.Contracts.Models;
 using Microsoft.Extensions.Options;
@@ -18,16 +19,21 @@ internal sealed class OllamaChatCompletionService : IChatCompletionService
         _client = new OllamaApiClient(new Uri(_options.OllamaBaseUrl));
     }
 
-    public async Task<ChatResponse> CompleteAsync(IReadOnlyList<ChatMessage> messages, CancellationToken ct = default)
+    public async Task<ChatResponse> CompleteAsync(
+        IReadOnlyList<ChatMessage> messages, CancellationToken ct = default)
     {
-        var sdkMessages = messages.Select(m => new OllamaSharp.Models.Chat.Message
+        ArgumentNullException.ThrowIfNull(messages);
+        if (messages.Count == 0)
+            throw new ArgumentException("At least one message is required.", nameof(messages));
+
+        var sdkMessages = messages.Select(m => new Message
         {
-            Role = m.Role switch
+            Role = m.Role.ToLowerInvariant() switch
             {
                 "system" => ChatRole.System,
                 "user" => ChatRole.User,
                 "assistant" => ChatRole.Assistant,
-                _ => throw new ArgumentException($"Unknown role: {m.Role}")
+                _ => throw new ArgumentException($"Unknown role '{m.Role}'")
             },
             Content = m.Content
         }).ToList();
@@ -36,23 +42,33 @@ internal sealed class OllamaChatCompletionService : IChatCompletionService
         {
             Model = _options.ChatModel,
             Messages = sdkMessages,
-            // Fully qualified to avoid conflict with OpenAI's RequestOptions
-            Options = new OllamaSharp.Models.RequestOptions
-            {
-                Temperature = 0.2f 
-            }
+            Stream = true,
+            Options = new OllamaSharp.Models.RequestOptions { Temperature = 0.2f }
         };
 
-        var response = new System.Text.StringBuilder();
-        await foreach (var stream in _client.ChatAsync(request, ct))
+        var content = new StringBuilder();
+        int inputTokens = 0;
+        int outputTokens = 0;
+
+        await foreach (var chunk in _client.ChatAsync(request, ct))
         {
-            response.Append(stream?.Message?.Content);
+            if (chunk?.Message?.Content is not null)
+                content.Append(chunk.Message.Content);
+
+            if (chunk?.Done == true)
+            {
+                var t = chunk.GetType();
+                var pe = t.GetProperty("PromptEvalCount")?.GetValue(chunk);
+                var e = t.GetProperty("EvalCount")?.GetValue(chunk);
+                if (pe is int pi) inputTokens = pi;
+                if (e is int ei) outputTokens = ei;
+            }
         }
 
         return new ChatResponse(
-            Content: response.ToString(),
-            InputTokens: 0,
-            OutputTokens: 0,
+            Content: content.ToString().Trim(),
+            InputTokens: inputTokens,
+            OutputTokens: outputTokens,
             Model: _options.ChatModel);
     }
 }

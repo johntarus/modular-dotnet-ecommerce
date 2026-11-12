@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <Folder Include="Domain\ValueObjects\" />
+      <Folder Include="Infrastructure\Persistence\Seeding\" />
     </ItemGroup>
 
     <ItemGroup>

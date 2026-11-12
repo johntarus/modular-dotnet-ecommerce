@@ -1,6 +1,5 @@
+using MediatR;
+
 namespace Catalog.Features.Products.Ask;
 
-public class AskProductsQuery
-{
-    
-}
+public record AskProductsQuery(string Question) : IRequest<AskProductsResult>;

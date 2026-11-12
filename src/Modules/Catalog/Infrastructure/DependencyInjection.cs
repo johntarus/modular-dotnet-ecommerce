@@ -1,3 +1,4 @@
+using Ai.Contracts;
 using BuildingBlocks.EventBus;
 using Catalog.Contracts;
 using Catalog.Infrastructure.Messaging;
@@ -21,6 +22,7 @@ internal static class DependencyInjection
 
         services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<ICatalogApi, CatalogApi>();
+        // services.AddScoped<IChatCompletionService, IChatCompletionService>();
 
         services.AddMassTransit(x =>
         {

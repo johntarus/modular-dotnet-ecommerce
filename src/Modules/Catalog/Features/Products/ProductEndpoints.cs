@@ -4,6 +4,7 @@ using Catalog.Features.Products.GetProductById;
 using Catalog.Features.Products.GetProducts;
 using Catalog.Features.Products.UpdateProduct;
 using BuildingBlocks.Infrastructure.Auth;
+using Catalog.Features.Products.Ask;
 using Catalog.Features.Products.SemanticSearch;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +37,7 @@ public static class ProductEndpoints
             "/{id:guid}",
             DeleteProduct).RequireAuthorization(AuthPolicies.CanManageCatalog);
         group.MapPost("/search-semantic", Search);
+        group.MapPost("/ask", Ask);
 
 
         return group;
@@ -106,5 +108,11 @@ public static class ProductEndpoints
             results.Count,
             Results = results
         });
+    }
+
+    private static async Task<IResult> Ask(AskProductsQuery productsQuery, ISender sender, CancellationToken ct)
+    {
+        var result = await sender.Send(new AskProductsQuery(productsQuery.Question), ct);
+        return Results.Ok(result);
     }
 }

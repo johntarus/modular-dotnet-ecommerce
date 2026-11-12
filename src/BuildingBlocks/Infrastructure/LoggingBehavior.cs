@@ -68,10 +68,12 @@ public sealed class LoggingBehavior<TRequest, TResponse>(
             stopwatch.Stop();
 
             logger.LogError(
-                ex,
-                "Request failed. EventName={EventName}, DurationMs={DurationMs}",
+                "Request failed. EventName={EventName}, DurationMs={DurationMs}, ExceptionType={ExceptionType}, Message={Message}, StackTrace={StackTrace}",
                 "request.failed",
-                stopwatch.Elapsed.TotalMilliseconds);
+                stopwatch.Elapsed.TotalMilliseconds,
+                ex.GetType().FullName,
+                ex.Message,
+                ex.StackTrace);
 
             throw;
         }

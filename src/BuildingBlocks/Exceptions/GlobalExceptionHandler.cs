@@ -49,9 +49,14 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 
         if (statusCode >= 500)
         {
-            _logger.LogError(exception,
-                "Request failed. EventName={EventName}, ExceptionType={ExceptionType}, Message={Message}, StatusCode={StatusCode}, Response={@Response}",
-                "request.failed", exception.GetType().Name, exception.Message, statusCode, problem);
+            _logger.LogError(
+                "Request failed. EventName={EventName}, ExceptionType={ExceptionType}, Message={Message}, StatusCode={StatusCode}, Response={@Response}, StackTrace={StackTrace}",
+                "request.failed",
+                exception.GetType().FullName,
+                exception.Message,
+                statusCode,
+                problem,
+                exception.StackTrace);
         }
         else
         {
