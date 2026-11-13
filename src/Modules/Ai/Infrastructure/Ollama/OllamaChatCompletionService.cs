@@ -40,7 +40,7 @@ internal sealed class OllamaChatCompletionService : IChatCompletionService
 
         var request = new ChatRequest
         {
-            Model = _options.ChatModel,
+            Model = _options.OllamaChatModel,
             Messages = sdkMessages,
             Stream = true,
             Options = new OllamaSharp.Models.RequestOptions { Temperature = 0.2f }
@@ -69,6 +69,6 @@ internal sealed class OllamaChatCompletionService : IChatCompletionService
             Content: content.ToString().Trim(),
             InputTokens: inputTokens,
             OutputTokens: outputTokens,
-            Model: _options.ChatModel);
+            Model: _options.OllamaChatModel);
     }
 }

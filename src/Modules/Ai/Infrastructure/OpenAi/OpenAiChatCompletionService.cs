@@ -10,7 +10,7 @@ internal sealed class OpenAiChatCompletionService(
     OpenAiClientFactory clientFactory,
     IOptions<AiOptions> options) : IChatCompletionService
 {
-    private readonly ChatClient _chat = clientFactory.Client.GetChatClient(options.Value.ChatModel);
+    private readonly ChatClient _chat = clientFactory.Client.GetChatClient(options.Value.OpenAiChatModel);
 
     public async Task<ChatResponse> CompleteAsync(
         IReadOnlyList<Contracts.Models.ChatMessage> messages,
@@ -42,6 +42,6 @@ internal sealed class OpenAiChatCompletionService(
             Content: content,
             InputTokens: response.Value.Usage.InputTokenCount,
             OutputTokens: response.Value.Usage.OutputTokenCount,
-            Model: options.Value.ChatModel);
+            Model: options.Value.OpenAiChatModel);
     }
 }

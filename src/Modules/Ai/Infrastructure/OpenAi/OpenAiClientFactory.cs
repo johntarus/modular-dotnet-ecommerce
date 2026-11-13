@@ -14,11 +14,11 @@ internal sealed class OpenAiClientFactory
 
     public OpenAiClientFactory(IOptions<AiOptions> options)
     {
-        if (string.IsNullOrWhiteSpace(options.Value.ApiKey))
+        if (string.IsNullOrWhiteSpace(options.Value.OpenAiApiKey))
             throw new InvalidOperationException(
                 "Ai:ApiKey is not configured. Set Ai__ApiKey environment variable or add it to appsettings.");
 
-        _client = new OpenAIClient(options.Value.ApiKey);
+        _client = new OpenAIClient(options.Value.OpenAiApiKey);
     }
 
     public OpenAIClient Client => _client;
