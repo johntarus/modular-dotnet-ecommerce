@@ -23,7 +23,7 @@ internal sealed class OllamaEmbeddingService : IEmbeddingService
     
         var request = new EmbedRequest
         {
-            Model = _options.EmbeddingModel,
+            Model = _options.OllamaEmbeddingModel,
             Input = new List<string> { text }
         };
 
@@ -35,7 +35,7 @@ internal sealed class OllamaEmbeddingService : IEmbeddingService
             Vector: floats,
             Dimensions: floats.Length,
             InputTokens: 0,
-            Model: _options.EmbeddingModel);
+            Model: _options.OllamaEmbeddingModel);
     }
 
     public async Task<IReadOnlyList<EmbeddingResponse>> EmbedBatchAsync(IEnumerable<string> texts, CancellationToken ct = default)
@@ -46,7 +46,7 @@ internal sealed class OllamaEmbeddingService : IEmbeddingService
         // Ollama's EmbedAsync can handle multiple inputs at once
         var request = new EmbedRequest
         {
-            Model = _options.EmbeddingModel,
+            Model = _options.OllamaEmbeddingModel,
             Input = list
         };
 
@@ -56,7 +56,7 @@ internal sealed class OllamaEmbeddingService : IEmbeddingService
             Vector: embedding.Select(d => d).ToArray(),
             Dimensions: embedding.Length,
             InputTokens: 0,
-            Model: _options.EmbeddingModel
+            Model: _options.OllamaEmbeddingModel
         )).ToList();
     }
 }

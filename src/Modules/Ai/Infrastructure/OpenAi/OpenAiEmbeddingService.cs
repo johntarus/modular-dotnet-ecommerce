@@ -10,7 +10,7 @@ internal sealed class OpenAiEmbeddingService(
     IOptions<AiOptions> options) : IEmbeddingService
 {
     private readonly EmbeddingClient _embeddings =
-        clientFactory.Client.GetEmbeddingClient(options.Value.EmbeddingModel);
+        clientFactory.Client.GetEmbeddingClient(options.Value.OpenAiEmbeddingModel);
 
     public async Task<EmbeddingResponse> EmbedAsync(string text, CancellationToken ct = default)
     {

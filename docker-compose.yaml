@@ -17,15 +17,17 @@
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
       - Otel__Endpoint=http://otel-collector:4317
-      - Ai__Provider=Ollama
+      #AI Config
+      - Ai__DefaultChatProvider=Ollama
       - Ai__OllamaBaseUrl=http://ollama:11434
-      - Ai__EmbeddingModel=mxbai-embed-large
+      - Ai__OllamaEmbeddingModel=mxbai-embed-large
       - Ai__EmbeddingDimensions=1024
-      - Ai__ChatModel=qwen2.5:3b
+      - Ai__OllamaChatModel=qwen2.5:3b
       
-#      - Ai__ApiKey=${OPENAI_API_KEY}
-#      - Ai__EmbeddingModel=text-embedding-3-small
-#      - Ai__ChatModel=gpt-4o-mini
+      # OpenAI Config 
+      - Ai__OpenAiApiKey=${OPENAI_API_KEY}
+      - Ai__OpenAiEmbeddingModel=text-embedding-3-small
+      - Ai__OpenAiChatModel=gpt-4o-mini
     
 #      - Auth__Authority=http://keycloak:8080/realms/ecommerce
 #      - Auth__PublicAuthority=http://localhost:8080/realms/ecommerce

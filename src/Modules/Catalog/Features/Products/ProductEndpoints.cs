@@ -110,9 +110,9 @@ public static class ProductEndpoints
         });
     }
 
-    private static async Task<IResult> Ask(AskProductsQuery productsQuery, ISender sender, CancellationToken ct)
+    private static async Task<IResult> Ask(AskProductsQuery request, ISender sender, CancellationToken ct)
     {
-        var result = await sender.Send(new AskProductsQuery(productsQuery.Question), ct);
+        var result = await sender.Send(new AskProductsQuery(request.Question, request.providerName), ct);
         return Results.Ok(result);
     }
 }

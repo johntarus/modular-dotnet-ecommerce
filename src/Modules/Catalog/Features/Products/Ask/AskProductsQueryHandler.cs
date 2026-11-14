@@ -14,7 +14,7 @@ namespace Catalog.Features.Products.Ask;
 internal sealed class AskProductsQueryHandler(
     CatalogDbContext context,
     IEmbeddingService embeddingService,
-    IChatCompletionService chatCompletionService,
+    ILlmProviderFactory llmProviderFactory,
     ICurrentUser currentUser) : IRequestHandler<AskProductsQuery, AskProductsResult>
 {
     private const double MinRelevance = 0.55;
@@ -77,8 +77,10 @@ internal sealed class AskProductsQueryHandler(
                       RECOMMENDATION:
                       """;
 
-        // 4. GENERATE
-        var response = await chatCompletionService.CompleteAsync(new[]
+        // STEP 4: GENERATE (Dynamically select Ollama or OpenAI)
+        // The Factory resolves the correct implementation based on the request
+        var chatService = llmProviderFactory.GetChatService(request.providerName);
+        var response = await chatService.CompleteAsync(new[]
         {
             ChatMessage.System(
                 "You are a shopping assistant that recommends products in natural prose. " +

@@ -1,6 +1,6 @@
 using Ai.Contracts;
-using Ai.Infrastructure.Ollama;
 using Ai.Infrastructure.OpenAi;
+using Ai.Infrastructure.Ollama;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,26 +12,20 @@ public static class DependencyInjection
     {
         services.Configure<AiOptions>(config.GetSection(AiOptions.SectionName));
 
-        var provider = config[$"{AiOptions.SectionName}:Provider"] ?? "Ollama";
+        // FIX: Register the OpenAI Client Factory (needed by the Chat Strategy)
+        services.AddSingleton<OpenAiClientFactory>();
 
-        if (provider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
-        {
-            services.AddSingleton<OpenAiClientFactory>();
-            services.AddSingleton<IEmbeddingService, OpenAiEmbeddingService>();
-            services.AddSingleton<IChatCompletionService, OpenAiChatCompletionService>();
-        }
-        else if (provider.Equals("Ollama", StringComparison.OrdinalIgnoreCase))
-        {
-            services.AddSingleton<IEmbeddingService, OllamaEmbeddingService>();
-            services.AddSingleton<IChatCompletionService, OllamaChatCompletionService>();
-            services.AddSingleton<OllamaChatCompletionService>();
-            services.AddSingleton<IChatCompletionService>(sp => new MeteredChatCompletionService(
-                sp.GetService<OllamaChatCompletionService>()));
-        }
-        else
-        {
-            throw new InvalidOperationException($"Unsupported AI provider: {provider}");
-        }
+        // ── 1. EMBEDDING (Global Singleton) ──
+        // We do NOT use Keyed Services here. 
+        // It is registered once, and injected as a plain IEmbeddingService.
+        services.AddSingleton<IEmbeddingService, OllamaEmbeddingService>();
+
+        // ── 2. CHAT (Keyed Services / Strategy Pattern) ──
+        services.AddKeyedSingleton<IChatCompletionService, OllamaChatCompletionService>("Ollama");
+        services.AddKeyedSingleton<IChatCompletionService, OpenAiChatCompletionService>("OpenAI");
+
+        // ── 3. FACTORY ──
+        services.AddSingleton<ILlmProviderFactory, LlmProviderFactory>();
 
         return services;
     }
