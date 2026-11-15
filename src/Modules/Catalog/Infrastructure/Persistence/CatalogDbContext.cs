@@ -36,28 +36,31 @@ internal class CatalogDbContext(DbContextOptions<CatalogDbContext> options, IPub
 
     }
 
+    // CatalogDbContext.SaveChangesAsync()
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Dispatch domain events before saving / use an outbox pattern to avoid synchronous operations here
         await DispatchDomainEventsAsync(cancellationToken);
-
         return await base.SaveChangesAsync(cancellationToken);
     }
 
     private async Task DispatchDomainEventsAsync(CancellationToken cancellationToken)
     {
+        // Find all entities with pending events
         var domainEntities = ChangeTracker
             .Entries<BaseEntity>()
             .Where(x => x.Entity.DomainEvents.Any())
             .Select(x => x.Entity)
             .ToList();
 
+        // Extract all events
         var domainEvents = domainEntities
             .SelectMany(x => x.DomainEvents)
             .ToList();
 
+        // Clear the list (prevent re-publishing on next save)
         domainEntities.ForEach(entity => entity.ClearDomainEvents());
 
+        // Publish each event via MediatR
         foreach (var domainEvent in domainEvents)
         {
             await publisher.Publish(domainEvent, cancellationToken);

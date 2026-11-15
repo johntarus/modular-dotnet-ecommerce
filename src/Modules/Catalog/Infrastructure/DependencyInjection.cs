@@ -1,6 +1,7 @@
 using Ai.Contracts;
 using BuildingBlocks.EventBus;
 using Catalog.Contracts;
+using Catalog.Features.Products.EventHandlers;
 using Catalog.Infrastructure.Messaging;
 using Catalog.Infrastructure.Persistence;
 using MassTransit;
@@ -31,6 +32,7 @@ internal static class DependencyInjection
                 o.UsePostgres();
                 o.UseBusOutbox();
             });
+            x.AddConsumer<GenerateEmbeddingConsumer>();
         });
 
         return services;
