@@ -72,7 +72,7 @@ namespace Catalog.Infrastructure.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<Vector>("Embedding")
-                        .HasColumnType("vector(1536)");
+                        .HasColumnType("vector(1024)");
 
                     b.Property<DateTime?>("EmbeddingGeneratedAt")
                         .HasColumnType("timestamp with time zone");

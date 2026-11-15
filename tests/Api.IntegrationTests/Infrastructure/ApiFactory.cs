@@ -23,7 +23,7 @@ namespace Api.IntegrationTests.Infrastructure;
 /// </summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder().WithImage("postgres:17").Build();
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder().WithImage("pgvector/pgvector:pg17").Build();
     private readonly RabbitMqContainer _rabbit = new RabbitMqBuilder().WithImage("rabbitmq:4-management").Build();
 
     public async Task InitializeAsync()

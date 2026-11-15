@@ -12,7 +12,7 @@ public static class DependencyInjection
     {
         services.Configure<AiOptions>(config.GetSection(AiOptions.SectionName));
 
-        // FIX: Register the OpenAI Client Factory (needed by the Chat Strategy)
+        // Needed by the OpenAI chat service
         services.AddSingleton<OpenAiClientFactory>();
 
         // ── 1. EMBEDDING (Global Singleton) ──
@@ -21,8 +21,12 @@ public static class DependencyInjection
         services.AddSingleton<IEmbeddingService, OllamaEmbeddingService>();
 
         // ── 2. CHAT (Keyed Services / Strategy Pattern) ──
-        services.AddKeyedSingleton<IChatCompletionService, OllamaChatCompletionService>("Ollama");
-        services.AddKeyedSingleton<IChatCompletionService, OpenAiChatCompletionService>("OpenAI");
+        // Every provider is wrapped in MeteredChatCompletionService so token usage,
+        // latency and failures are recorded no matter which one the factory picks.
+        services.AddKeyedSingleton<IChatCompletionService>(LlmProviders.Ollama, (sp, _) =>
+            new MeteredChatCompletionService(ActivatorUtilities.CreateInstance<OllamaChatCompletionService>(sp)));
+        services.AddKeyedSingleton<IChatCompletionService>(LlmProviders.OpenAI, (sp, _) =>
+            new MeteredChatCompletionService(ActivatorUtilities.CreateInstance<OpenAiChatCompletionService>(sp)));
 
         // ── 3. FACTORY ──
         services.AddSingleton<ILlmProviderFactory, LlmProviderFactory>();

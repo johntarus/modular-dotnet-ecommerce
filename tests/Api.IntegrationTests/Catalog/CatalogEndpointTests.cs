@@ -277,4 +277,19 @@ public class CatalogEndpointTests(ApiFactory factory) : ApiTestBase(factory)
 
         await AssertProblemAsync(response, HttpStatusCode.NotFound);
     }
+
+    // ---------- AI ----------
+
+    /// <summary>Rejected by validation before any embedding or LLM call, so no Ollama is needed here.</summary>
+    [Theory]
+    [InlineData("Gemini")]
+    [InlineData("string")]
+    public async Task Ask_UnknownProvider_Returns400_NamingSupportedProviders(string provider)
+    {
+        var response = await Anonymous().PostAsJsonAsync($"{Products}/ask", new { Question = "headphones with deep bass", ProviderName = provider });
+
+        await AssertProblemAsync(response, HttpStatusCode.BadRequest);
+        var errors = (await ReadJsonAsync(response)).GetProperty("errors").EnumerateArray().Select(e => e.GetString());
+        Assert.Contains($"Unknown AI provider '{provider}'. Supported providers: Ollama, OpenAI.", errors);
+    }
 }

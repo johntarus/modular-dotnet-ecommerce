@@ -33,6 +33,7 @@
     <ItemGroup>
       <InternalsVisibleTo Include="Catalog.UnitTests" />
       <InternalsVisibleTo Include="Catalog.IntegrationTests" />
+      <InternalsVisibleTo Include="Ai.IntegrationTests" />
       <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 

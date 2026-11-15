@@ -15,6 +15,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Price).HasPrecision(18, 2).IsRequired();
         builder.Property(p=>p.CategoryId).IsRequired();
         builder.HasQueryFilter(p => !p.IsDeleted);
+        // Must match Product.SetEmbedding and the embedding model (mxbai-embed-large → 1024).
         builder.Property(p => p.Embedding).HasColumnType("vector(1024)");
+        builder.HasIndex(p => p.Embedding)
+            .HasMethod("ivfflat")
+            .HasOperators("vector_cosine_ops");
     }
 }

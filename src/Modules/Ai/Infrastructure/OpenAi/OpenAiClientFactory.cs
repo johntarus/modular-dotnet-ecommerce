@@ -16,7 +16,8 @@ internal sealed class OpenAiClientFactory
     {
         if (string.IsNullOrWhiteSpace(options.Value.OpenAiApiKey))
             throw new InvalidOperationException(
-                "Ai:ApiKey is not configured. Set Ai__ApiKey environment variable or add it to appsettings.");
+                "Ai:OpenAiApiKey is not configured. Set the Ai__OpenAiApiKey environment variable " +
+                "(docker-compose reads it from OPENAI_API_KEY) or add Ai:OpenAiApiKey to appsettings.");
 
         _client = new OpenAIClient(options.Value.OpenAiApiKey);
     }

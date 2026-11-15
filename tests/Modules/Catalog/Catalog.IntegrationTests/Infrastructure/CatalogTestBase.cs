@@ -9,7 +9,7 @@ namespace Catalog.IntegrationTests.Infrastructure;
 /// <summary>One Postgres container for the whole run, with the real Catalog migrations applied.</summary>
 public sealed class PostgresFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder().WithImage("postgres:17").Build();
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder().WithImage("pgvector/pgvector:pg17").Build();
 
     public string ConnectionString => _container.GetConnectionString();
 
@@ -23,7 +23,7 @@ public sealed class PostgresFixture : IAsyncLifetime
     public Task DisposeAsync() => _container.DisposeAsync().AsTask();
 
     internal CatalogDbContext CreateContext(IPublisher publisher) =>
-        new(new DbContextOptionsBuilder<CatalogDbContext>().UseNpgsql(ConnectionString).Options, publisher);
+        new(new DbContextOptionsBuilder<CatalogDbContext>().UseNpgsql(ConnectionString, o => o.UseVector()).Options, publisher);
 
     public async Task ResetAsync()
     {

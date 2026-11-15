@@ -3,10 +3,13 @@ using Ai.Contracts;
 using Ai.Contracts.Models;
 using BuildingBlocks.Infrastructure.Observability;
 
-namespace Ai.Infrastructure.Ollama;
+namespace Ai.Infrastructure;
 
+/// <summary>Decorates any chat provider with token, latency and failure metrics (see AiMetrics).</summary>
 internal sealed class MeteredChatCompletionService(IChatCompletionService inner) : IChatCompletionService
 {
+    internal IChatCompletionService Inner => inner;
+
     public async Task<ChatResponse> CompleteAsync(
         IReadOnlyList<ChatMessage> messages, CancellationToken ct = default)
     {

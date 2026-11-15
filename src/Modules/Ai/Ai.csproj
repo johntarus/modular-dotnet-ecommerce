@@ -15,6 +15,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <InternalsVisibleTo Include="Ai.UnitTests" />
+      <InternalsVisibleTo Include="Ai.IntegrationTests" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\Ai.Contracts\Ai.Contracts.csproj" />
       <ProjectReference Include="..\Catalog\Catalog.csproj" />
     </ItemGroup>

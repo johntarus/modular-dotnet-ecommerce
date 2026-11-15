@@ -1,4 +1,5 @@
 using Ai.Contracts;
+using BuildingBlocks.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -8,10 +9,18 @@ public class LlmProviderFactory(IServiceProvider serviceProvider, IOptions<AiOpt
 {
     public IChatCompletionService GetChatService(string? providerName = null)
     {
-        // If the request didn't specify, fall back to the global config
-        var provider = providerName ?? options.Value.DefaultChatProvider;
-        
-        // Resolve using .NET Keyed Services
-        return serviceProvider.GetRequiredKeyedService<IChatCompletionService>(provider);
+        // A blank name (e.g. "" from a form or Swagger) means "use the configured default".
+        if (string.IsNullOrWhiteSpace(providerName))
+            return Resolve(LlmProviders.Normalize(options.Value.DefaultChatProvider)
+                ?? throw new InvalidOperationException(
+                    $"Ai:DefaultChatProvider is set to '{options.Value.DefaultChatProvider}', which is not supported. " +
+                    $"Use one of: {string.Join(", ", LlmProviders.All)}."));
+
+        // A name the caller chose is a client error (400), not a server error.
+        return Resolve(LlmProviders.Normalize(providerName)
+            ?? throw new ValidationException(LlmProviders.UnknownProviderMessage(providerName)));
     }
+
+    private IChatCompletionService Resolve(string provider) =>
+        serviceProvider.GetRequiredKeyedService<IChatCompletionService>(provider);
 }

@@ -13,8 +13,8 @@ using Pgvector;
 namespace Catalog.Infrastructure.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20261107163807_UpdateEmbeddingTo1024")]
-    partial class UpdateEmbeddingTo1024
+    [Migration("20261115083128_ResizeEmbeddingTo1024")]
+    partial class ResizeEmbeddingTo1024
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,7 +75,7 @@ namespace Catalog.Infrastructure.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<Vector>("Embedding")
-                        .HasColumnType("vector(1536)");
+                        .HasColumnType("vector(1024)");
 
                     b.Property<DateTime?>("EmbeddingGeneratedAt")
                         .HasColumnType("timestamp with time zone");
