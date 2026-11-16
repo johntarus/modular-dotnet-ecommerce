@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Catalog.Features.Products.EventHandlers;
 
-public class ProductCreatedDomainEventHandler
+internal sealed class ProductCreatedDomainEventHandler
     : INotificationHandler<ProductCreatedDomainEvent>
 {
     private readonly IEventBus _eventBus;

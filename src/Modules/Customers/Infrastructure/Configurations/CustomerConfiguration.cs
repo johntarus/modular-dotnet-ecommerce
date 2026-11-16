@@ -35,10 +35,10 @@ public sealed class CustomerConfiguration
         builder.Property(x => x.PhoneNumber)
             .HasMaxLength(30);
 
-        builder.Property(x => x.CreatedAtUtc)
+        builder.Property(x => x.CreatedAt)
             .IsRequired();
 
-        builder.Property(x => x.UpdatedAtUtc);
+        builder.Property(x => x.UpdatedAt);
 
         builder.HasMany(x => x.Addresses)
             .WithOne()

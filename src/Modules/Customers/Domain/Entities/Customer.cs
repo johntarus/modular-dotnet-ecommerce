@@ -15,8 +15,6 @@ public sealed class Customer : BaseEntity
     public string? Email { get; private set; }
     public string? PhoneNumber { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? UpdatedAtUtc { get; private set; }
 
     public IReadOnlyCollection<CustomerAddress> Addresses => _addresses.AsReadOnly();
     
@@ -43,7 +41,7 @@ public sealed class Customer : BaseEntity
             FirstName = NormalizeOptional(firstName),
             LastName = NormalizeOptional(lastName),
             IsActive = true, // Default to true
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
         customer.AddDomainEvent(new CustomerRegisteredDomainEvent(
             customer.Id,
@@ -64,7 +62,7 @@ public sealed class Customer : BaseEntity
         Email = NormalizeOptional(email);
         PhoneNumber = NormalizeOptional(phoneNumber);
 
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
     
     public void Deactivate()
@@ -72,7 +70,7 @@ public sealed class Customer : BaseEntity
         if (!IsActive) return; // Already deactivated
     
         IsActive = false;
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Activate()
@@ -80,7 +78,7 @@ public sealed class Customer : BaseEntity
         if (IsActive) return;
     
         IsActive = true;
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public Guid AddAddress(
@@ -100,7 +98,7 @@ public sealed class Customer : BaseEntity
             street, city, state, postalCode, countryCode, label);
 
         _addresses.Add(address);
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
 
         return address.Id;
     }
@@ -123,7 +121,7 @@ public sealed class Customer : BaseEntity
             recipientName, phoneNumber, email, 
             street, city, state, postalCode, countryCode, label);
 
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
     
     public void RemoveAddress(Guid addressId)
@@ -132,7 +130,7 @@ public sealed class Customer : BaseEntity
 
         _addresses.Remove(address);
 
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void SetDefaultShippingAddress(Guid addressId)
@@ -145,7 +143,7 @@ public sealed class Customer : BaseEntity
                 address.Id == selectedAddress.Id);
         }
 
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void SetDefaultBillingAddress(Guid addressId)
@@ -158,7 +156,7 @@ public sealed class Customer : BaseEntity
                 address.Id == selectedAddress.Id);
         }
 
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     private CustomerAddress GetAddress(Guid addressId)

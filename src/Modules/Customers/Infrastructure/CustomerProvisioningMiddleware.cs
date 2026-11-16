@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Infrastructure;
 
-public sealed class CustomerProvisioningMiddleware(RequestDelegate next)
+public class CustomerProvisioningMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context, CustomersDbContext dbContext, ICurrentUser currentUser)
     {

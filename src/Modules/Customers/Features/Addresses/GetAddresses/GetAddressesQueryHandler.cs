@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Features.Addresses.GetAddresses;
 
-public sealed class GetAddressesQueryHandler(
+internal sealed class GetAddressesQueryHandler(
     CustomersDbContext dbContext,
     ICurrentUser currentUser
 ) : IRequestHandler<GetAddressesQuery, IReadOnlyList<AddressResponse>>

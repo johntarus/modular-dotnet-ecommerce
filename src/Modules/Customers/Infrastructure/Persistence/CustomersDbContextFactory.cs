@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Customers.Infrastructure.Persistence;
 
-public sealed class CustomersDbContextFactory
+internal sealed class CustomersDbContextFactory
     : IDesignTimeDbContextFactory<CustomersDbContext>
 {
     public CustomersDbContext CreateDbContext(string[] args)

@@ -25,6 +25,7 @@
         <ProjectReference Include="..\Modules\Customers\Customers.csproj" />
         <ProjectReference Include="..\Modules\Inventory.Contracts\Inventory.Contracts.csproj" />
         <ProjectReference Include="..\Modules\Inventory\Inventory.csproj" />
+        <ProjectReference Include="..\Modules\Notifications\Notifications.csproj" />
     </ItemGroup>
 
 </Project>

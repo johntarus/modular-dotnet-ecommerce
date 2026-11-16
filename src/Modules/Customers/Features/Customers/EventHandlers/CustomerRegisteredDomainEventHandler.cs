@@ -1,19 +1,15 @@
-using BuildingBlocks.EventBus;
 using Customers.Contracts.Events;
 using Customers.Domain.Events;
+using MassTransit;
 using MediatR;
 
 namespace Customers.Features.Customers.EventHandlers;
 
-internal sealed class CustomerRegisteredDomainEventHandler : INotificationHandler<CustomerRegisteredDomainEvent>
+// Uses IBus rather than IEventBus/IPublishEndpoint: the scoped publish endpoint is bound to Catalog's bus outbox,
+// so a publish through it would sit in an unsaved CatalogDbContext and never reach RabbitMQ.
+// CustomersDbContext dispatches this after the customer row is committed.
+internal sealed class CustomerRegisteredDomainEventHandler(IBus bus) : INotificationHandler<CustomerRegisteredDomainEvent>
 {
-    private readonly IEventBus _eventBus;
-
-    public CustomerRegisteredDomainEventHandler(IEventBus eventBus)
-    {
-        _eventBus = eventBus;
-    }
-
     public async Task Handle(CustomerRegisteredDomainEvent notification, CancellationToken ct)
     {
         var integrationEvent = new CustomerRegisteredIntegrationEvent(
@@ -22,6 +18,6 @@ internal sealed class CustomerRegisteredDomainEventHandler : INotificationHandle
             notification.FirstName,
             DateTime.UtcNow);
 
-        await _eventBus.PublishAsync(integrationEvent, ct);
+        await bus.Publish(integrationEvent, ct);
     }
 }

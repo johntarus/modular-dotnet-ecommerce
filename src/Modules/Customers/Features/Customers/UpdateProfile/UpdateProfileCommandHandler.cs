@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Features.Customers.UpdateProfile;
 
-public class UpdateProfileCommandHandler(CustomersDbContext context, ICurrentUser currentUser) : IRequestHandler<UpdateProfileCommand, Guid>
+internal class UpdateProfileCommandHandler(CustomersDbContext context, ICurrentUser currentUser) : IRequestHandler<UpdateProfileCommand, Guid>
 {
     public async Task<Guid> Handle(UpdateProfileCommand request, CancellationToken ct)
     {

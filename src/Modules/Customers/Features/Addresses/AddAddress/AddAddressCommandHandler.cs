@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Features.Addresses.AddAddress;
 
-public class AddAddressCommandHandler(CustomersDbContext context, ICurrentUser currentUser) : IRequestHandler<AddAddressCommand, Guid>
+internal class AddAddressCommandHandler(CustomersDbContext context, ICurrentUser currentUser) : IRequestHandler<AddAddressCommand, Guid>
 {
     public async Task<Guid> Handle(AddAddressCommand request, CancellationToken ct)
     {

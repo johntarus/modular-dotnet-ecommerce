@@ -17,16 +17,12 @@ public static class DependencyInjection
 
         services.AddMassTransit(x =>
         {
+            x.AddConsumer<ProductCreatedIntegrationEventConsumer>();
+            x.AddConsumer<ProductDeletedIntegrationEventConsumer>();
             x.AddEntityFrameworkOutbox<InventoryDbContext>(o =>
             {
                 o.UsePostgres();
             });
-        });
-
-        services.AddMassTransit(x =>
-        {
-            x.AddConsumer<ProductCreatedIntegrationEventConsumer>();
-            x.AddConsumer<ProductDeletedIntegrationEventConsumer>();
         });
         return services;
     }
