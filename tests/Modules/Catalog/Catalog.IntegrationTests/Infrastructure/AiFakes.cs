@@ -1,6 +1,6 @@
 using Ai.Contracts;
 using Ai.Contracts.Models;
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 
 namespace Catalog.IntegrationTests.Infrastructure;
 
@@ -66,4 +66,5 @@ public sealed class FakeLlmProviderFactory(FakeChatService chat) : ILlmProviderF
 public sealed class FakeCurrentUser(Guid? userId = null) : ICurrentUser
 {
     public Guid? UserId { get; } = userId;
+    public bool IsAuthenticated { get; }
 }

@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Catalog.Contracts;
 using Catalog.Contracts.Dtos;
 using Grpc.Core;
@@ -9,6 +9,7 @@ namespace Cart.IntegrationTests.Infrastructure;
 public sealed class FakeCurrentUser(Guid? userId = null) : ICurrentUser
 {
     public Guid? UserId { get; set; } = userId;
+    public bool IsAuthenticated { get; }
 }
 
 public sealed class FakeCatalogApi : ICatalogApi

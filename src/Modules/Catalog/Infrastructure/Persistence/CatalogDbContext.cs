@@ -1,5 +1,4 @@
 using BuildingBlocks.Domain;
-using BuildingBlocks.Shared;
 using Catalog.Domain.Entities;
 using MassTransit;
 using MediatR;

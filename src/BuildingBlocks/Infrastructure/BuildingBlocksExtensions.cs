@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using BuildingBlocks.Infrastructure.Observability;
 using Microsoft.Extensions.Configuration;
 
@@ -20,7 +20,7 @@ public static class BuildingBlocksExtensions
         services.AddExceptionHandler<GlobalExceptionHandler>();
         
         services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUser, CurrentUser.CurrentUser>();
+        services.AddScoped<ICurrentUser, CurrentUser>();
         
         services.AddProblemDetails();
         

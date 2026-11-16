@@ -1,3 +1,4 @@
+
 using Cart.Features.Carts.AddItem;
 using Cart.Features.Carts.ClearCart;
 using Cart.Features.Carts.GetCart;
@@ -14,22 +15,23 @@ namespace Cart.Features.Carts;
 
 public static class CartEndpoints
 {
-    public static RouteGroupBuilder MapCartEndpoints(this IEndpointRouteBuilder app)
+    public static void MapCartEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/cart").WithTags("cart");
-
+        var group = app.MapGroup("/")
+            .WithTags("Cart");
         group.MapGet("/", GetCart);
         group.MapPost("/items", AddItemToCart);
         group.MapPut("/items/{productId:guid}", UpdateItemQuantity);
         group.MapDelete("/items/{productId:guid}", RemoveItem);
-        group.MapDelete("/cart", ClearCart);
+        group.MapDelete("/", ClearCart);
 
-        group.MapPost("/merge", MergeGuestCart).RequireAuthorization();
-
-        return group;
+        group.MapPost("/merge", MergeGuestCart)
+            .RequireAuthorization();
     }
 
-    private static async Task<IResult> GetCart(ISender sender, CancellationToken ct)
+    private static async Task<IResult> GetCart(
+        ISender sender,
+        CancellationToken ct)
     {
         var cart = await sender.Send(new GetCartQuery(), ct);
         return Results.Ok(cart);
@@ -38,11 +40,16 @@ public static class CartEndpoints
     private static async Task<IResult> AddItemToCart(
         HttpContext httpContext,
         [FromHeader(Name = "X-Cart-Token")] string? guestToken,
-        [FromBody] AddItemToCartRequest request, ISender sender, CancellationToken ct)
+        [FromBody] AddItemToCartRequest request,
+        ISender sender,
+        CancellationToken ct)
     {
-        var result = await sender.Send(new AddItemToCartCommand(request.ProductId, request.Quantity), ct);
-        if(result.IssuedGuestToken is not null)
+        var result = await sender.Send(
+            new AddItemToCartCommand(request.ProductId, request.Quantity), ct);
+
+        if (result.IssuedGuestToken is not null)
             httpContext.Response.Headers["X-Cart-Token"] = result.IssuedGuestToken;
+
         return Results.Ok(new
         {
             result.CartId,
@@ -52,27 +59,42 @@ public static class CartEndpoints
     }
 
     private static async Task<IResult> UpdateItemQuantity(
-        Guid productId, [FromBody] UpdateQuantityRequest request, ISender sender, CancellationToken ct)
+        Guid productId,
+        [FromBody] UpdateQuantityRequest request,
+        ISender sender,
+        CancellationToken ct)
     {
-        await sender.Send(new SetItemQuantityCommand(productId, request.Quantity), ct);
+        await sender.Send(
+            new SetItemQuantityCommand(productId, request.Quantity), ct);
+
         return Results.NoContent();
     }
 
-    private static async Task<IResult> RemoveItem(Guid productId, ISender sender, CancellationToken ct)
+    private static async Task<IResult> RemoveItem(
+        Guid productId,
+        ISender sender,
+        CancellationToken ct)
     {
         await sender.Send(new RemoveItemCommand(productId), ct);
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ClearCart(ISender sender, CancellationToken ct)
+    private static async Task<IResult> ClearCart(
+        ISender sender,
+        CancellationToken ct)
     {
         await sender.Send(new ClearCartCommand(), ct);
         return Results.NoContent();
     }
 
-    private static async Task<IResult> MergeGuestCart([FromHeader(Name = "X-Cart-Token")] string? guestToken, ISender sender, CancellationToken ct)
+    private static async Task<IResult> MergeGuestCart(
+        [FromHeader(Name = "X-Cart-Token")] string? guestToken,
+        ISender sender,
+        CancellationToken ct)
     {
-        var result = await sender.Send(new MergeGuestCartCommand(guestToken),  ct);
+        var result = await sender.Send(
+            new MergeGuestCartCommand(guestToken), ct);
+
         return Results.Ok(result);
     }
 }

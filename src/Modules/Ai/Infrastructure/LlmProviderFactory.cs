@@ -16,7 +16,6 @@ public class LlmProviderFactory(IServiceProvider serviceProvider, IOptions<AiOpt
                     $"Ai:DefaultChatProvider is set to '{options.Value.DefaultChatProvider}', which is not supported. " +
                     $"Use one of: {string.Join(", ", LlmProviders.All)}."));
 
-        // A name the caller chose is a client error (400), not a server error.
         return Resolve(LlmProviders.Normalize(providerName)
             ?? throw new ValidationException(LlmProviders.UnknownProviderMessage(providerName)));
     }

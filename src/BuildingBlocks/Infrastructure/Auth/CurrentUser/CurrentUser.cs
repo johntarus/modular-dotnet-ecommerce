@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 
-namespace BuildingBlocks.Infrastructure.CurrentUser;
+namespace BuildingBlocks.Infrastructure.Auth.CurrentUser;
 
 internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, IHostEnvironment env)
     : ICurrentUser
@@ -29,4 +29,7 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, IHos
             return null;
         }
     }
+
+    public bool IsAuthenticated => 
+        httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 }

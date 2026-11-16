@@ -1,5 +1,7 @@
 using Inventory.Features.Inventory;
 using Inventory.Infrastructure;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,8 +25,10 @@ public static class InventoryModule
     public static IEndpointRouteBuilder MapInventory(
         this IEndpointRouteBuilder app)
     {
-        // Make sure MapInventoryEndpoints handles the "/api/inventory" prefix internally.
-        app.MapInventoryEndpoints();
+        var group = app
+            .MapGroup("/api/inventory")
+            .WithTags("Inventory");
+        group.MapInventoryEndpoints();
 
         return app;
     }

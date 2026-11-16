@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Cart.Features.Carts.CartResolver;
 using Cart.Infrastructure.Persistence;
 using MediatR;

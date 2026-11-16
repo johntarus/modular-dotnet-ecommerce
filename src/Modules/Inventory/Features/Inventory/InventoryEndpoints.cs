@@ -15,7 +15,7 @@ public static class InventoryEndpoints
 {
     public static RouteGroupBuilder MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/inventory")
+        var group = app.MapGroup("/")
             .WithTags("Inventory");
         group.MapGet("/{id:guid}", GetInventoryById);
         group.MapGet("/", GetInventories);

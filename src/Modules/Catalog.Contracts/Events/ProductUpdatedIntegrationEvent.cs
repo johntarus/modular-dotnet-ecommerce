@@ -1,5 +1,4 @@
 using BuildingBlocks.Contracts.Events;
-using BuildingBlocks.Domain;
 
 namespace Catalog.Contracts.Events;
 

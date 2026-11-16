@@ -9,11 +9,6 @@
   </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Domain\ValueObjects\" />
-      <Folder Include="Infrastructure\Persistence\Seeding\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="FluentValidation" Version="12.1.1" />
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
       <PackageReference Include="MassTransit" Version="8.5.11" />

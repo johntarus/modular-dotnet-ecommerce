@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using BuildingBlocks.Exceptions;
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Cart.Domain.Entities;
 using Cart.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;

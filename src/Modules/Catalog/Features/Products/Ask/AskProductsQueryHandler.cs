@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Ai.Contracts;
 using Ai.Contracts.Models;
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Catalog.Features.Products.SemanticSearch;
 using Catalog.Infrastructure.Persistence;
 using MediatR;

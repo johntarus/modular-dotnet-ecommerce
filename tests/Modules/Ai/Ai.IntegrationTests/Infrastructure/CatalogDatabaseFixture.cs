@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Catalog.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -42,4 +42,5 @@ public sealed class CatalogDatabaseFixture : IAsyncLifetime
 public sealed class FakeCurrentUser : ICurrentUser
 {
     public Guid? UserId { get; } = Guid.NewGuid();
+    public bool IsAuthenticated { get; }
 }

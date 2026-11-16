@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using BuildingBlocks.Infrastructure.CurrentUser;
+using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

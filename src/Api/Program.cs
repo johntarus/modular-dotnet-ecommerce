@@ -6,6 +6,8 @@ using BuildingBlocks.Logging;
 using BuildingBlocks.Swagger;
 using Cart;
 using Catalog;
+using Customers;
+using Customers.Infrastructure;
 using Inventory;
 using Inventory.Features.Inventory.Grpc;
 using Serilog;
@@ -22,7 +24,8 @@ builder.Services.AddBuildingBlocks(builder.Configuration,
     typeof(CatalogModule).Assembly,
     typeof(InventoryModule).Assembly,
     typeof(CartModule).Assembly,
-    typeof(AiModule).Assembly);
+    typeof(AiModule).Assembly,
+    typeof(CustomersModule).Assembly);
 
 builder.Services.AddAuth(builder.Configuration, builder.Environment);
 builder.Services.AddSwaggerDocumentation(builder.Configuration);
@@ -34,6 +37,7 @@ builder.Services.AddCatalog(builder.Configuration);
 builder.Services.AddInventory(builder.Configuration);
 builder.Services.AddCart(builder.Configuration);
 builder.Services.AddAiModule(builder.Configuration);
+builder.Services.AddCustomers(builder.Configuration);
 
 builder.Services.AddMessaging(builder.Configuration);
 
@@ -51,6 +55,8 @@ app.UseBuildingBlocks();
 
 app.UseAuth();
 
+app.UseMiddleware<CustomerProvisioningMiddleware>();
+
 if (!string.IsNullOrEmpty(app.Configuration["https_port"]))
 {
     app.UseHttpsRedirection();
@@ -61,5 +67,6 @@ app.MapGrpcService<InventoryGrpcService>();
 app.MapCatalog();
 app.MapInventory();
 app.MapCart();
+app.MapCustomers();
 
 app.Run();

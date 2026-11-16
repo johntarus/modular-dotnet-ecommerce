@@ -18,7 +18,7 @@ internal class CatalogDbContextFactory : IDesignTimeDbContextFactory<CatalogDbCo
             ?? "Host=localhost;Database=modular_monolith;Username=postgres;Password=postgres";
 
         var options = new DbContextOptionsBuilder<CatalogDbContext>()
-            .UseNpgsql(connectionString, o => o.UseVector())   // ← the critical line
+            .UseNpgsql(connectionString, o => o.UseVector())
             .Options;
 
         // Design-time: no domain events are dispatched — a no-op publisher is fine.
