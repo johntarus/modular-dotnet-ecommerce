@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using BuildingBlocks.Domain;
+using Customers.Domain.Events;
 
 namespace Customers.Domain.Entities;
 
-public sealed class Customer
+public sealed class Customer : BaseEntity
 {
     private readonly List<CustomerAddress> _addresses = [];
 
@@ -33,7 +35,7 @@ public sealed class Customer
         if (string.IsNullOrWhiteSpace(identitySubject))
             throw new ValidationException("Identity subject is required.");
 
-        return new Customer
+        var customer =  new Customer
         {
             Id = Guid.NewGuid(),
             IdentitySubject = identitySubject,
@@ -43,6 +45,12 @@ public sealed class Customer
             IsActive = true, // Default to true
             CreatedAtUtc = DateTime.UtcNow
         };
+        customer.AddDomainEvent(new CustomerRegisteredDomainEvent(
+            customer.Id,
+            customer.Email,
+            customer.FirstName
+        ));
+        return customer;
     }
     
     public void UpdateProfile(
