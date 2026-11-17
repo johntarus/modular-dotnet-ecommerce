@@ -1,4 +1,3 @@
-using Ai.Contracts;
 using BuildingBlocks.EventBus;
 using Catalog.Contracts;
 using Catalog.Features.Products.EventHandlers;

@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Catalog;
 
@@ -19,7 +16,6 @@ public static class CatalogModule
         this IServiceCollection services, IConfiguration config)
     {
         services.AddCatalogInfrastructure(config);
-        services.ConfigureOptions<ConfigureCatalogSwaggerOptions>();
 
         return services;
     }
@@ -36,17 +32,5 @@ public static class CatalogModule
         group.MapCategoryEndpoints();
 
         return app;
-    }
-    
-    internal sealed class ConfigureCatalogSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
-    {
-        public void Configure(SwaggerGenOptions options)
-        {
-            options.SwaggerDoc("catalog", new OpenApiInfo
-            {
-                Title = "Catalog Module",
-                Version = "v1"
-            });
-        }
     }
 }

@@ -1,4 +1,4 @@
-namespace Notifications.Features.Email;
+namespace Notifications.Features.Abstractions.Email;
 
 public sealed record EmailMessage(
     string To,

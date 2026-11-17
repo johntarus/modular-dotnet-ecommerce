@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Inventory;
 
@@ -17,7 +14,6 @@ public static class InventoryModule
         this IServiceCollection services, IConfiguration config)
     {
         services.AddInventoryInfrastructure(config);
-        services.ConfigureOptions<ConfigureInventorySwaggerOptions>();
 
         return services;
     }
@@ -31,17 +27,5 @@ public static class InventoryModule
         group.MapInventoryEndpoints();
 
         return app;
-    }
-    
-    internal sealed class ConfigureInventorySwaggerOptions : IConfigureOptions<SwaggerGenOptions>
-    {
-        public void Configure(SwaggerGenOptions options)
-        {
-            options.SwaggerDoc("inventory", new OpenApiInfo
-            {
-                Title = "Inventory Module",
-                Version = "v1"
-            });
-        }
     }
 }

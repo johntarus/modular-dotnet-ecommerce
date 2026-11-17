@@ -9,8 +9,9 @@ public class NotificationLog
     public string Subject { get; private set; }
     public string Body { get; private set; }
     public NotificationStatus Status { get; private set; } // Pending, Sent, Failed
-    public DateTime CreatedAtUtc { get; private set; }
-    public DateTime? SentAtUtc { get; private set; }
+    public string? ErrorMessage { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime? SentAt { get; private set; }
 
     private NotificationLog() { }
 
@@ -23,19 +24,20 @@ public class NotificationLog
             Subject = subject,
             Body = body,
             Status = NotificationStatus.Pending,
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
     }
 
     public void MarkAsSent()
     {
         Status = NotificationStatus.Sent;
-        SentAtUtc = DateTime.UtcNow;
+        SentAt = DateTime.UtcNow;
     }
 
-    public void MarkAsFailed()
+    public void MarkAsFailed(string errorMessage)
     {
         Status = NotificationStatus.Failed;
-        SentAtUtc = DateTime.UtcNow;
+        ErrorMessage = errorMessage;
+        SentAt = DateTime.UtcNow;
     }
 }

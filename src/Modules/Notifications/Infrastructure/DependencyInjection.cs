@@ -2,7 +2,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Notifications.Features.Email;
+using Notifications.Features.Abstractions.Email;
 using Notifications.Features.EventHandlers;
 using Notifications.Infrastructure.Email;
 using Notifications.Infrastructure.Persistence;
@@ -33,12 +33,17 @@ internal static class DependencyInjection
 
         // FakeEmailService only logs the email. Switch to SmtpEmailSender once Email:* points at a real SMTP server
         // (appsettings currently has the smtp.example.com placeholder, so real sends would fail and be retried).
-        services.AddScoped<IEmailSender, FakeEmailService>();
-        // services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IEmailSender, FakeEmailSender>();
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
 
         services.AddMassTransit(x =>
         {
             x.AddConsumer<CustomerRegisteredConsumer>();
+            // Add Outbox for the Inbox pattern (Idempotency)
+            x.AddEntityFrameworkOutbox<NotificationsDbContext>(o =>
+            {
+                o.UsePostgres();
+            });
         });
 
         return services;

@@ -72,6 +72,6 @@ app.MapCatalog();
 app.MapInventory();
 app.MapCart();
 app.MapCustomers();
-app.MapNotificationEndpoints();
+app.MapNotifications();
 
 app.Run();

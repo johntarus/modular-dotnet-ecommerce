@@ -15,30 +15,16 @@ internal class CartDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("cart");
+        
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CartDbContext).Assembly);
-        modelBuilder.Entity<ShoppingCart>(e =>
-        {
-            e.ToTable("Carts", t =>
-                t.HasCheckConstraint(
-                    "CK_Cart_Identity",
-                    "(\"UserId\" IS NOT NULL AND \"GuestTokenHash\" IS NULL) OR (\"UserId\" IS NULL AND \"GuestTokenHash\" IS NOT NULL)"));
 
-            e.HasIndex(c => c.UserId)
-                .IsUnique()
-                .HasFilter("\"UserId\" IS NOT NULL");   // ← partial index
-
-            e.HasIndex(c => c.GuestTokenHash)
-                .IsUnique()
-                .HasFilter("\"GuestTokenHash\" IS NOT NULL");
-        });
-
+        // MassTransit Inbox/Outbox Tables
         modelBuilder.AddInboxStateEntity();
         modelBuilder.AddOutboxMessageEntity();
         modelBuilder.AddOutboxStateEntity();
     }
 
-    public override async Task<int> SaveChangesAsync(
-        CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entities = ChangeTracker
             .Entries<BaseEntity>()

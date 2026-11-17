@@ -1,4 +1,4 @@
-namespace Notifications.Features.Email;
+namespace Notifications.Features.Abstractions.Email;
 
 public interface IEmailSender
 {

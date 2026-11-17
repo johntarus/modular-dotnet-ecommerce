@@ -2,7 +2,7 @@ using MailKit;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Notifications.Features.Email;
+using Notifications.Features.Abstractions.Email;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Notifications.Infrastructure.Email;

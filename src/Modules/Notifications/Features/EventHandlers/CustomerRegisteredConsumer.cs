@@ -2,14 +2,13 @@ using Customers.Contracts.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Notifications.Domain.Entities;
-using Notifications.Features.Email;
-using Notifications.Infrastructure.Email;
+using Notifications.Features.Abstractions.Email;
 using Notifications.Infrastructure.Persistence;
 
 namespace Notifications.Features.EventHandlers;
 
 internal class CustomerRegisteredConsumer(
-    NotificationsDbContext db, 
+    NotificationsDbContext _context, 
     IEmailSender emailSender,
     ILogger<CustomerRegisteredConsumer> logger) 
     : IConsumer<CustomerRegisteredIntegrationEvent>
@@ -29,8 +28,8 @@ internal class CustomerRegisteredConsumer(
 
         // Create the log
         var log = NotificationLog.Create(message.Email, subject, body);
-        db.NotificationLogs.Add(log);
-        await db.SaveChangesAsync(ct);
+        _context.NotificationLogs.Add(log);
+        await _context.SaveChangesAsync(ct);
 
         try
         {
@@ -43,13 +42,13 @@ internal class CustomerRegisteredConsumer(
 
             // Mark as sent
             log.MarkAsSent();
-            await db.SaveChangesAsync(ct);
+            await _context.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to send email to {Email}", message.Email);
-            log.MarkAsFailed();
-            await db.SaveChangesAsync(ct);
+            log.MarkAsFailed(ex.Message);
+            await _context.SaveChangesAsync(ct);
             
             // Throwing ensures MassTransit retries the message or puts it in the _error queue
             throw; 

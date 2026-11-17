@@ -24,7 +24,6 @@ public static class DependencyInjection
             x.AddEntityFrameworkOutbox<CartDbContext>(o =>
             {
                 o.UsePostgres();
-                // o.UseBusOutbox();
             });
         });
         services.AddGrpcClient<InventoryGrpc.InventoryGrpcClient>(o =>
