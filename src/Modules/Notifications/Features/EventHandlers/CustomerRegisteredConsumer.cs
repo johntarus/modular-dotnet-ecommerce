@@ -3,6 +3,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Notifications.Domain.Entities;
 using Notifications.Features.Abstractions.Email;
+using Notifications.Features.Abstractions.Email.Templates.WelcomeEmail;
 using Notifications.Infrastructure.Persistence;
 
 namespace Notifications.Features.EventHandlers;
@@ -10,6 +11,7 @@ namespace Notifications.Features.EventHandlers;
 internal class CustomerRegisteredConsumer(
     NotificationsDbContext _context, 
     IEmailSender emailSender,
+    IEmailTemplate<WelcomeEmailModel> welcomeTemplate,
     ILogger<CustomerRegisteredConsumer> logger) 
     : IConsumer<CustomerRegisteredIntegrationEvent>
 {
@@ -20,23 +22,17 @@ internal class CustomerRegisteredConsumer(
 
         logger.LogInformation("Processing welcome email for {Email}", message.Email);
 
-        var subject = "Welcome to our store!";
-        var body = $@"
-            <h1>Welcome, {message.FirstName}!</h1>
-            <p>We are thrilled to have you. Start shopping today!</p>
-        ";
+        var model = new WelcomeEmailModel(message.Email, message.FirstName ?? "Valued Customer");
+        
+        var email =  welcomeTemplate.Generate(model);
 
         // Create the log
-        var log = NotificationLog.Create(message.Email, subject, body);
+        var log = NotificationLog.Create(email.To, email.Subject, email.HtmlBody);
         _context.NotificationLogs.Add(log);
         await _context.SaveChangesAsync(ct);
 
         try
         {
-            var email = new EmailMessage(
-                message.Email,
-                subject,
-                body);
             // Send the email
             await emailSender.SendEmailAsync(email, ct);
 

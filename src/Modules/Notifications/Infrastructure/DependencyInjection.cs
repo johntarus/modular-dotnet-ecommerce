@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Features.Abstractions.Email;
+using Notifications.Features.Abstractions.Email.Templates.WelcomeEmail;
 using Notifications.Features.EventHandlers;
 using Notifications.Infrastructure.Email;
 using Notifications.Infrastructure.Persistence;
@@ -34,7 +35,9 @@ internal static class DependencyInjection
         // FakeEmailService only logs the email. Switch to SmtpEmailSender once Email:* points at a real SMTP server
         // (appsettings currently has the smtp.example.com placeholder, so real sends would fail and be retried).
         services.AddScoped<IEmailSender, FakeEmailSender>();
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        // services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IEmailTemplate<WelcomeEmailModel>, WelcomeEmailTemplate>();
+
 
         services.AddMassTransit(x =>
         {

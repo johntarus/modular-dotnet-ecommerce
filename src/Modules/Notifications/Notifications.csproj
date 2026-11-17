@@ -21,4 +21,8 @@
       <ProjectReference Include="..\Customers.Contracts\Customers.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\Abstractions\Email\Templates\" />
+    </ItemGroup>
+
 </Project>
