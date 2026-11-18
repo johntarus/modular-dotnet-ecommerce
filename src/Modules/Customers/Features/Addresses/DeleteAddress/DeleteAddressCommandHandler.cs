@@ -11,8 +11,15 @@ internal sealed class DeleteAddressCommandHandler(CustomersDbContext context, IC
 {
     public async Task Handle(DeleteAddressCommand request, CancellationToken ct)
     {
-        var keycloakId = currentUser.UserId!.Value.ToString();
-        var customer = await context.Customers.FirstOrDefaultAsync(c => c.IdentitySubject == keycloakId, ct)
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+
+        var keycloakId = currentUser.UserId.Value.ToString();
+        var customer = await context.Customers
+                           .Include(c => c.Addresses) // RemoveAddress looks the address up in this collection
+                           .FirstOrDefaultAsync(c => c.IdentitySubject == keycloakId, ct)
                        ?? throw new NotFoundException("Customer not found.");
 
         // Call the Domain method

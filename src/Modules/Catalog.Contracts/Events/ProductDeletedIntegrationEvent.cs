@@ -7,5 +7,6 @@ public sealed record ProductDeletedIntegrationEvent(
     Guid ProductId,
     DateTime OccurredAt) : IIntegrationEvent
 {
-    public Guid EventId { get; } = Guid.NewGuid();
+    // init (not get-only) so the publisher's id survives JSON deserialization on the consumer side
+    public Guid EventId { get; init; } = Guid.NewGuid();
 }

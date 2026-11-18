@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Customers.Infrastructure.Persistence;
 using MediatR;
@@ -19,7 +20,7 @@ internal sealed class DeactivateCustomerCommandHandler(CustomersDbContext contex
         
         var customer = await context.Customers
                            .FirstOrDefaultAsync(c => c.IdentitySubject == keycloakId, ct)
-                       ?? throw new KeyNotFoundException("Customer not found.");
+                       ?? throw new NotFoundException("Customer not found.");
 
         customer.Deactivate();
         await context.SaveChangesAsync(ct);

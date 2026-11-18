@@ -12,7 +12,4 @@ public sealed record UpdateAddressCommand(
     string State,
     string? PostalCode,
     string CountryCode,
-    string? Label) : IRequest
-{
-    public Guid AddressId { get; init; }
-}
+    string? Label) : IRequest;

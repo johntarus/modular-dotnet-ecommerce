@@ -74,9 +74,17 @@ public sealed class CustomerAddress
             throw new ValidationException(
                 "Recipient name is required.");
 
+        if (string.IsNullOrWhiteSpace(street))
+            throw new ValidationException(
+                "Street is required.");
+
         if (string.IsNullOrWhiteSpace(city))
             throw new ValidationException(
                 "City is required.");
+
+        if (string.IsNullOrWhiteSpace(state))
+            throw new ValidationException(
+                "State is required.");
 
         if (string.IsNullOrWhiteSpace(countryCode) ||
             countryCode.Trim().Length != 2)

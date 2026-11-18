@@ -8,7 +8,8 @@ namespace Api.IntegrationTests.Infrastructure;
 
 /// <summary>
 /// Replaces Keycloak JWT validation. A request carrying "X-Test-User: {guid}" is signed in
-/// as that user (claim "sub", like Keycloak); "X-Test-Roles: Admin,Other" adds role claims.
+/// as that user (claim "sub", like Keycloak); "X-Test-Roles: Admin,Other" adds role claims;
+/// "X-Test-Email" / "X-Test-Given-Name" / "X-Test-Family-Name" add the matching Keycloak profile claims.
 /// Without the user header the request is anonymous.
 /// </summary>
 public sealed class TestAuthHandler(
@@ -19,6 +20,9 @@ public sealed class TestAuthHandler(
     public const string Scheme = "Test";
     public const string UserHeader = "X-Test-User";
     public const string RolesHeader = "X-Test-Roles";
+    public const string EmailHeader = "X-Test-Email";
+    public const string GivenNameHeader = "X-Test-Given-Name";
+    public const string FamilyNameHeader = "X-Test-Family-Name";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -27,6 +31,10 @@ public sealed class TestAuthHandler(
             return Task.FromResult(AuthenticateResult.NoResult());
 
         var claims = new List<Claim> { new("sub", userId) };
+        foreach (var (header, claim) in new[] { (EmailHeader, "email"), (GivenNameHeader, "given_name"), (FamilyNameHeader, "family_name") })
+            if (Request.Headers[header].FirstOrDefault() is { Length: > 0 } value)
+                claims.Add(new Claim(claim, value));
+
         var roles = Request.Headers[RolesHeader].FirstOrDefault();
         if (!string.IsNullOrWhiteSpace(roles))
             claims.AddRange(roles.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)

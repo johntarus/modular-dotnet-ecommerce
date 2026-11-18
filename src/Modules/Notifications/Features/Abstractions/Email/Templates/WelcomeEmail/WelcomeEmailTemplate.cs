@@ -20,7 +20,7 @@ public sealed class WelcomeEmailTemplate : IEmailTemplate<WelcomeEmailModel>
                     </head>
                     <body>
                         <div class="container">
-                            <h1>Welcome, {safeName}!</h1>
+                            <h1>Welcome, {{safeName}}!</h1>
                             <p>Thank you for creating an account with us. We are thrilled to have you on board.</p>
                             <p>Click the button below to start exploring our store.</p>
                             <a href="https://yourstore.com" class="btn">Start Shopping</a>

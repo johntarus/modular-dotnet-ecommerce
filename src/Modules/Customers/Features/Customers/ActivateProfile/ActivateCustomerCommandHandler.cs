@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Customers.Infrastructure.Persistence;
 using MediatR;
@@ -19,7 +20,7 @@ internal sealed class ActivateCustomerCommandHandler(CustomersDbContext db, ICur
         
         var customer = await db.Customers
                            .FirstOrDefaultAsync(c => c.IdentitySubject == keycloakId, ct)
-                       ?? throw new KeyNotFoundException("Customer not found.");
+                       ?? throw new NotFoundException("Customer not found.");
 
         // Call the domain method we added earlier
         customer.Activate();

@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Customers.Infrastructure.Persistence;
 using MediatR;
@@ -40,7 +41,7 @@ internal sealed class GetAddressesQueryHandler(
 
         if (customer is null)
         {
-            throw new KeyNotFoundException(
+            throw new NotFoundException(
                 "Customer was not found.");
         }
 

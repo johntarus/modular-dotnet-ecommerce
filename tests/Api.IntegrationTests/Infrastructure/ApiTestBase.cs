@@ -53,7 +53,7 @@ public abstract class ApiTestBase(ApiFactory factory) : IAsyncLifetime
 
         await WaitForInventoryRecordAsync(admin, productId);
 
-        var stockResponse = await admin.PutAsJsonAsync($"/inventory/{productId}/stock",
+        var stockResponse = await admin.PutAsJsonAsync($"/api/inventory/{productId}/stock",
             new { Quantity = stock, Reason = "test setup" });
         await EnsureSuccessAsync(stockResponse);
 
@@ -65,7 +65,7 @@ public abstract class ApiTestBase(ApiFactory factory) : IAsyncLifetime
         var deadline = DateTime.UtcNow.AddSeconds(30);
         while (DateTime.UtcNow < deadline)
         {
-            var response = await client.GetAsync($"/inventory/{productId}");
+            var response = await client.GetAsync($"/api/inventory/{productId}");
             if (response.StatusCode == HttpStatusCode.OK) return;
             await Task.Delay(200);
         }

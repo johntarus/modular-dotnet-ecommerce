@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using Cart;
 using Catalog;
+using Customers;
 using Grpc.Net.Client;
 using Inventory;
 using Inventory.Contracts.Grpc;
@@ -11,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Notifications;
+using Notifications.Features.Abstractions.Email;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 
@@ -49,6 +53,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("RabbitMq:Username", RabbitMqBuilder.DefaultUsername);
         builder.UseSetting("RabbitMq:Password", RabbitMqBuilder.DefaultPassword);
 
+        // Notifications validates these on start; emails themselves go to RecordingEmailSender below
+        builder.UseSetting("Email:Host", "smtp.test.invalid");
+        builder.UseSetting("Email:Port", "587");
+        builder.UseSetting("Email:SenderEmail", "noreply@shop.test");
+
         builder.ConfigureTestServices(services =>
         {
             // Migrations must run before MassTransit's hosted services start polling outbox tables
@@ -62,6 +71,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
                 o.DefaultAuthenticateScheme = TestAuthHandler.Scheme;
                 o.DefaultChallengeScheme = TestAuthHandler.Scheme;
             });
+
+            // Capture emails instead of sending them
+            services.RemoveAll<IEmailSender>();
+            services.AddSingleton(Emails);
+            services.AddSingleton<IEmailSender>(Emails);
 
             // Route Cart → Inventory gRPC calls through the in-memory server
             services.RemoveAll<InventoryGrpc.InventoryGrpcClient>();
@@ -82,6 +96,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         return base.CreateHost(builder);
     }
 
+    /// <summary>Every email the Notifications module "sent" during the run.</summary>
+    public RecordingEmailSender Emails { get; } = new();
+
     public async Task ResetCartsAsync()
     {
         await using var scope = Services.CreateAsyncScope();
@@ -92,7 +109,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private sealed class MigrateDatabasesHostedService(IServiceProvider services) : IHostedService
     {
         public static readonly Type[] ContextTypes =
-            new[] { typeof(CatalogModule).Assembly, typeof(InventoryModule).Assembly, typeof(CartModule).Assembly }
+            new[]
+                {
+                    typeof(CatalogModule).Assembly, typeof(InventoryModule).Assembly, typeof(CartModule).Assembly,
+                    typeof(CustomersModule).Assembly, typeof(NotificationsModule).Assembly
+                }
                 .SelectMany(a => a.GetTypes())
                 .Where(t => typeof(DbContext).IsAssignableFrom(t) && !t.IsAbstract)
                 .ToArray();
@@ -112,4 +133,17 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 public sealed class ApiCollection : ICollectionFixture<ApiFactory>
 {
     public const string Name = "Api";
+}
+
+public sealed class RecordingEmailSender : IEmailSender
+{
+    private readonly ConcurrentQueue<EmailMessage> _sent = new();
+
+    public IReadOnlyCollection<EmailMessage> Sent => _sent;
+
+    public Task SendEmailAsync(EmailMessage message, CancellationToken ct = default)
+    {
+        _sent.Enqueue(message);
+        return Task.CompletedTask;
+    }
 }

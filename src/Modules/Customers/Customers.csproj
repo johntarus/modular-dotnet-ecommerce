@@ -11,6 +11,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <InternalsVisibleTo Include="Customers.UnitTests" />
+      <InternalsVisibleTo Include="Customers.IntegrationTests" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.12" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.15" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.15" />

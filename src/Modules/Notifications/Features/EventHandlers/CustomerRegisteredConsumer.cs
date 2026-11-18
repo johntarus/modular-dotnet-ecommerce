@@ -20,9 +20,18 @@ internal class CustomerRegisteredConsumer(
         var message = context.Message;
         var ct = context.CancellationToken;
 
+        // Nowhere to send it. Not an error: retrying can't help, so don't throw (that would fault the message).
+        if (string.IsNullOrWhiteSpace(message.Email))
+        {
+            logger.LogWarning("Skipping welcome email for customer {CustomerId}: no email address on their account",
+                message.CustomerId);
+            return;
+        }
+
         logger.LogInformation("Processing welcome email for {Email}", message.Email);
 
-        var model = new WelcomeEmailModel(message.Email, message.FirstName ?? "Valued Customer");
+        var model = new WelcomeEmailModel(message.Email,
+            string.IsNullOrWhiteSpace(message.FirstName) ? "Valued Customer" : message.FirstName);
         
         var email =  welcomeTemplate.Generate(model);
 

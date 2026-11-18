@@ -54,7 +54,7 @@ public static class AddressEndpoints
         CancellationToken ct)
     {
         var id = await sender.Send(command, ct);
-        return Results.Created($"/addresses/{id}", new { Id = id });
+        return Results.Created($"/api/customers/addresses/{id}", new { Id = id });
     }
 
     private static async Task<IResult> UpdateAddress(

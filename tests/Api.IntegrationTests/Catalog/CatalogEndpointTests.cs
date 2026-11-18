@@ -261,9 +261,9 @@ public class CatalogEndpointTests(ApiFactory factory) : ApiTestBase(factory)
             new { Name = "Mug", Description = "d", Price = 14m, CategoryId = categoryId }));
 
         var user = SignedIn();
-        await EnsureSuccessAsync(await user.PostAsJsonAsync("/cart/items", new { ProductId = productId, Quantity = 1 }));
+        await EnsureSuccessAsync(await user.PostAsJsonAsync("/api/cart/items", new { ProductId = productId, Quantity = 1 }));
 
-        var item = Assert.Single((await ReadJsonAsync(await user.GetAsync("/cart"))).GetProperty("items").EnumerateArray());
+        var item = Assert.Single((await ReadJsonAsync(await user.GetAsync("/api/cart"))).GetProperty("items").EnumerateArray());
         Assert.Equal(14m, item.GetProperty("unitPrice").GetDecimal());
     }
 
@@ -273,7 +273,7 @@ public class CatalogEndpointTests(ApiFactory factory) : ApiTestBase(factory)
         var productId = await CreateProductAsync(10m, stock: 10);
         await EnsureSuccessAsync(await Admin().DeleteAsync($"{Products}/{productId}"));
 
-        var response = await SignedIn().PostAsJsonAsync("/cart/items", new { ProductId = productId, Quantity = 1 });
+        var response = await SignedIn().PostAsJsonAsync("/api/cart/items", new { ProductId = productId, Quantity = 1 });
 
         await AssertProblemAsync(response, HttpStatusCode.NotFound);
     }

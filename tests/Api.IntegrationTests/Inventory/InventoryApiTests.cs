@@ -11,14 +11,14 @@ namespace Api.IntegrationTests.Inventory;
 public class InventoryApiTests(ApiFactory factory) : ApiTestBase(factory)
 {
     private static Task<HttpResponseMessage> SetStockAsync(HttpClient client, Guid productId, int quantity, string? reason = "recount") =>
-        client.PutAsJsonAsync($"/inventory/{productId}/stock", new { Quantity = quantity, Reason = reason });
+        client.PutAsJsonAsync($"/api/inventory/{productId}/stock", new { Quantity = quantity, Reason = reason });
 
     private static Task<HttpResponseMessage> AdjustAsync(HttpClient client, Guid productId, int change, string? reason = "delivery") =>
-        client.PatchAsJsonAsync($"/inventory/{productId}/adjustments", new { QuantityChange = change, Reason = reason });
+        client.PatchAsJsonAsync($"/api/inventory/{productId}/adjustments", new { QuantityChange = change, Reason = reason });
 
     private async Task<int> OnHandAsync(Guid productId)
     {
-        var response = await Anonymous().GetAsync($"/inventory/{productId}");
+        var response = await Anonymous().GetAsync($"/api/inventory/{productId}");
         await EnsureSuccessAsync(response);
         return (await ReadJsonAsync(response)).GetProperty("quantityOnHand").GetInt32();
     }
@@ -38,7 +38,7 @@ public class InventoryApiTests(ApiFactory factory) : ApiTestBase(factory)
     {
         var productId = await CreateProductAsync(10m, stock: 7);
 
-        var response = await Anonymous().GetAsync($"/inventory/{productId}");
+        var response = await Anonymous().GetAsync($"/api/inventory/{productId}");
 
         await EnsureSuccessAsync(response);
         var body = await ReadJsonAsync(response);
@@ -50,7 +50,7 @@ public class InventoryApiTests(ApiFactory factory) : ApiTestBase(factory)
     [Fact]
     public async Task GetById_UnknownProduct_Returns404()
     {
-        await AssertProblemAsync(await Anonymous().GetAsync($"/inventory/{Guid.NewGuid()}"), HttpStatusCode.NotFound);
+        await AssertProblemAsync(await Anonymous().GetAsync($"/api/inventory/{Guid.NewGuid()}"), HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class InventoryApiTests(ApiFactory factory) : ApiTestBase(factory)
     {
         await CreateProductAsync(10m, 1);
 
-        var response = await Anonymous().GetAsync("/inventory?page=1&pageSize=1000");
+        var response = await Anonymous().GetAsync("/api/inventory?page=1&pageSize=1000");
 
         await EnsureSuccessAsync(response);
         var body = await ReadJsonAsync(response);
@@ -200,9 +200,9 @@ public class InventoryApiTests(ApiFactory factory) : ApiTestBase(factory)
         var productId = await CreateProductAsync(10m, stock: 1);
         var user = SignedIn();
 
-        var before = await user.PostAsJsonAsync("/cart/items", new { ProductId = productId, Quantity = 3 });
+        var before = await user.PostAsJsonAsync("/api/cart/items", new { ProductId = productId, Quantity = 3 });
         await EnsureSuccessAsync(await AdjustAsync(Admin(), productId, 5));
-        var after = await user.PostAsJsonAsync("/cart/items", new { ProductId = productId, Quantity = 3 });
+        var after = await user.PostAsJsonAsync("/api/cart/items", new { ProductId = productId, Quantity = 3 });
 
         Assert.Equal(HttpStatusCode.BadRequest, before.StatusCode);
         await EnsureSuccessAsync(after);
@@ -221,7 +221,7 @@ public class InventoryApiTests(ApiFactory factory) : ApiTestBase(factory)
         HttpStatusCode status;
         do
         {
-            status = (await Anonymous().GetAsync($"/inventory/{productId}")).StatusCode;
+            status = (await Anonymous().GetAsync($"/api/inventory/{productId}")).StatusCode;
             if (status == HttpStatusCode.NotFound) break;
             await Task.Delay(200);
         } while (DateTime.UtcNow < deadline);

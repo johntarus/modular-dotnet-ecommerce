@@ -20,6 +20,7 @@ internal sealed class UpdateAddressCommandHandler(CustomersDbContext context, IC
         
         // Load the Aggregate Root (Customer)
         var customer = await context.Customers
+                           .Include(c => c.Addresses) // UpdateAddress looks the address up in this collection
                            .FirstOrDefaultAsync(c => c.IdentitySubject == keycloakId, ct)
                        ?? throw new NotFoundException("Customer not found.");
 

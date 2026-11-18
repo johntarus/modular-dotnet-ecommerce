@@ -12,14 +12,14 @@ namespace Api.IntegrationTests.Cart;
 public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
 {
     private static Task<HttpResponseMessage> AddAsync(HttpClient client, Guid productId, int quantity) =>
-        client.PostAsJsonAsync("/cart/items", new { ProductId = productId, Quantity = quantity });
+        client.PostAsJsonAsync("/api/cart/items", new { ProductId = productId, Quantity = quantity });
 
     private static Task<HttpResponseMessage> SetQuantityAsync(HttpClient client, Guid productId, int quantity) =>
-        client.PutAsJsonAsync($"/cart/items/{productId}", new { Quantity = quantity });
+        client.PutAsJsonAsync($"/api/cart/items/{productId}", new { Quantity = quantity });
 
     private static async Task<JsonElement> GetCartAsync(HttpClient client)
     {
-        var response = await client.GetAsync("/cart");
+        var response = await client.GetAsync("/api/cart");
         await EnsureSuccessAsync(response);
         return await ReadJsonAsync(response);
     }
@@ -84,7 +84,7 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
     [Fact]
     public async Task Guest_WithUnknownToken_Returns404()
     {
-        var response = await WithCartToken(Anonymous(), "not-a-real-token").GetAsync("/cart");
+        var response = await WithCartToken(Anonymous(), "not-a-real-token").GetAsync("/api/cart");
 
         await AssertProblemAsync(response, HttpStatusCode.NotFound);
     }
@@ -103,10 +103,10 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
         var item = (await GetCartAsync(guest)).GetProperty("items").EnumerateArray().Single(i => i.GetProperty("productId").GetGuid() == a);
         Assert.Equal(4, item.GetProperty("quantity").GetInt32());
 
-        Assert.Equal(HttpStatusCode.NoContent, (await guest.DeleteAsync($"/cart/items/{a}")).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await guest.DeleteAsync($"/api/cart/items/{a}")).StatusCode);
         Assert.Equal(1, (await GetCartAsync(guest)).GetProperty("items").GetArrayLength());
 
-        Assert.Equal(HttpStatusCode.NoContent, (await guest.DeleteAsync("/cart/cart")).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await guest.DeleteAsync("/api/cart")).StatusCode);
         Assert.Equal(0, (await GetCartAsync(guest)).GetProperty("items").GetArrayLength());
     }
 
@@ -117,8 +117,8 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
         var guest = Anonymous();
 
         await AssertProblemAsync(await SetQuantityAsync(guest, productId, 2), HttpStatusCode.BadRequest);
-        await AssertProblemAsync(await guest.DeleteAsync($"/cart/items/{productId}"), HttpStatusCode.BadRequest);
-        await AssertProblemAsync(await guest.DeleteAsync("/cart/cart"), HttpStatusCode.BadRequest);
+        await AssertProblemAsync(await guest.DeleteAsync($"/api/cart/items/{productId}"), HttpStatusCode.BadRequest);
+        await AssertProblemAsync(await guest.DeleteAsync("/api/cart"), HttpStatusCode.BadRequest);
     }
 
     // ---------- Add item: errors ----------
@@ -217,8 +217,8 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
         var user = SignedIn();
         await EnsureSuccessAsync(await AddAsync(user, productId, 1));
 
-        var removed = await user.DeleteAsync($"/cart/items/{productId}");
-        var removedAgain = await user.DeleteAsync($"/cart/items/{productId}");
+        var removed = await user.DeleteAsync($"/api/cart/items/{productId}");
+        var removedAgain = await user.DeleteAsync($"/api/cart/items/{productId}");
 
         Assert.Equal(HttpStatusCode.NoContent, removed.StatusCode);
         await AssertProblemAsync(removedAgain, HttpStatusCode.NotFound);
@@ -232,7 +232,7 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
         await EnsureSuccessAsync(await AddAsync(user, await CreateProductAsync(10m, 10), 1));
         await EnsureSuccessAsync(await AddAsync(user, await CreateProductAsync(20m, 10), 2));
 
-        var response = await user.DeleteAsync("/cart/cart");
+        var response = await user.DeleteAsync("/api/cart");
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(0, (await GetCartAsync(user)).GetProperty("items").GetArrayLength());
@@ -241,7 +241,7 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
     [Fact]
     public async Task User_WithoutCart_GetCart_Returns404()
     {
-        var response = await SignedIn().GetAsync("/cart");
+        var response = await SignedIn().GetAsync("/api/cart");
 
         await AssertProblemAsync(response, HttpStatusCode.NotFound);
     }
@@ -251,7 +251,7 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
     [Fact]
     public async Task Merge_WithoutSignIn_Returns401()
     {
-        var response = await Anonymous().PostAsync("/cart/merge", null);
+        var response = await Anonymous().PostAsync("/api/cart/merge", null);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -265,7 +265,7 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
         var token = added.GetProperty("issuedGuestToken").GetString()!;
 
         var user = WithCartToken(SignedIn(), token);
-        var response = await user.PostAsync("/cart/merge", null);
+        var response = await user.PostAsync("/api/cart/merge", null);
 
         await EnsureSuccessAsync(response);
         var result = await ReadJsonAsync(response);
@@ -277,14 +277,14 @@ public class CartApiTests(ApiFactory factory) : ApiTestBase(factory)
         var item = Assert.Single(userCart.GetProperty("items").EnumerateArray());
         Assert.Equal(2, item.GetProperty("quantity").GetInt32());
 
-        var guestCart = await WithCartToken(Anonymous(), token).GetAsync("/cart");
+        var guestCart = await WithCartToken(Anonymous(), token).GetAsync("/api/cart");
         Assert.Equal(HttpStatusCode.NotFound, guestCart.StatusCode);
     }
 
     [Fact]
     public async Task Merge_WithoutCartToken_ReturnsWarning()
     {
-        var response = await SignedIn().PostAsync("/cart/merge", null);
+        var response = await SignedIn().PostAsync("/api/cart/merge", null);
 
         await EnsureSuccessAsync(response);
         var result = await ReadJsonAsync(response);

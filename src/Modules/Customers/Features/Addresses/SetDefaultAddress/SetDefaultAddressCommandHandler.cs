@@ -11,7 +11,12 @@ internal sealed class SetDefaultAddressCommandHandler(CustomersDbContext context
 {
     public async Task Handle(SetDefaultAddressCommand request, CancellationToken ct)
     {
-        var keycloakId = currentUser.UserId!.Value.ToString();
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+
+        var keycloakId = currentUser.UserId.Value.ToString();
         var customer = await context.Customers
                            .Include(c => c.Addresses) // Include addresses because the domain method iterates over them
                            .FirstOrDefaultAsync(c => c.IdentitySubject == keycloakId, ct)
