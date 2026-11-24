@@ -1,3 +1,4 @@
+using Confluent.Kafka;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,8 @@ public static class MessagingExtensions
                 // registered by ALL modules before this is called.
                 cfg.ConfigureEndpoints(context);
             });
+            
+            // Kafka is an additional transport through Rider.
         });
 
         return services;

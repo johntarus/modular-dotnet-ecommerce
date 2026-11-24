@@ -15,8 +15,8 @@ public class ProductCreatedIntegrationEventConsumer(
     {
         logger.LogInformation("Received ProductCreated event for Product {ProductId}", context.Message.ProductId);
 
-        // RabbitMQ delivers at least once: a redelivered event must not try to insert the same key again.
-        // IgnoreQueryFilters so a soft-deleted record also counts as "already handled".
+        // Kafka can redeliver messages, so make processing idempotent.
+        // IgnoreQueryFilters ensures soft-deleted records are also checked.
         var exists = await _context.InventoryItems
             .IgnoreQueryFilters()
             .AnyAsync(i => i.ProductId == context.Message.ProductId, context.CancellationToken);
@@ -29,6 +29,6 @@ public class ProductCreatedIntegrationEventConsumer(
 
         var item = InventoryItem.Create(context.Message.ProductId);
         _context.InventoryItems.Add(item);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(context.CancellationToken);
     }
 }

@@ -16,6 +16,8 @@
       - RabbitMq__Host=rabbitmq
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
+      #KAFKA
+      - Kafka__BootstrapServers=kafka:9092
       - Otel__Endpoint=http://otel-collector:4317
       #AI Config
       - Ai__DefaultChatProvider=Ollama
@@ -36,6 +38,8 @@
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
       otel-collector:
         condition: service_started
@@ -94,6 +98,7 @@
     ports:
       - "5672:5672"
       - "15672:15672"
+      - "15692:15692"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -105,6 +110,80 @@
       timeout: 5s
       retries: 5
       start_period: 30s
+      
+  kafka:
+    image: apache/kafka:4.1.1
+    container_name: ecommerce-kafka
+    hostname: kafka
+    restart: unless-stopped
+    ports:
+      - "29092:29092"
+      - "9404"
+    environment:
+      # Node identity and KRaft configuration
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      CLUSTER_ID: "4L6g3nShT-eMCtK--X86sw"
+
+      # Kafka listeners
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # Controller quorum
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      # Single-node development settings
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+
+      # Persistent storage
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      
+      KAFKA_OPTS: >-
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-1.7.0.jar=9404:/opt/jmx/kafka.yml
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - ./monitoring/jmx:/opt/jmx:ro
+
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+      
+      
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: ecommerce-kafka-exporter
+    restart: unless-stopped
+    command:
+      - "--kafka.server=kafka:9092"
+    ports:
+      - "9308:9308"
+    depends_on:
+      - kafka
+      
+      
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: ecommerce-kafka-ui
+    ports:
+      - "8081:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+      KAFKA_CLUSTERS_0_NAME: ecommerce-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+
 
   # ==========================================
   # OPENTELEMETRY COLLECTOR
@@ -175,6 +254,27 @@
     ports:
       - "9090:9090"
     restart: unless-stopped
+    
+    
+    
+#  ALLOY
+  alloy:
+    image: grafana/alloy:latest
+    container_name: ecommerce-alloy
+    restart: unless-stopped
+    ports:
+      - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - alloy_data:/var/lib/alloy/data
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+    depends_on:
+      - prometheus
 
   # ==========================================
   # ELASTICSEARCH
@@ -252,6 +352,9 @@ volumes:
   loki_data:
   elasticsearch_data:
   prometheus_data:
+  alloy_data:
   grafana_data:
   rabbitmq_data:
+  kafka_data:
   ollama_data:
+ 

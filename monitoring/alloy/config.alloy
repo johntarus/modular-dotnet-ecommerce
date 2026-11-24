@@ -1,0 +1,45 @@
+// RabbitMQ broker metrics
+prometheus.scrape "rabbitmq" {
+  targets = [
+    {
+      "__address__" = "rabbitmq:15692",
+      "job"         = "rabbitmq",
+    },
+  ]
+
+  scrape_interval = "15s"
+  forward_to      = [prometheus.remote_write.local.receiver]
+}
+
+// Kafka broker JMX metrics
+prometheus.scrape "kafka" {
+  targets = [
+    {
+      "__address__" = "kafka:9404",
+      "job"         = "kafka",
+    },
+  ]
+
+  scrape_interval = "15s"
+  forward_to      = [prometheus.remote_write.local.receiver]
+}
+
+// Kafka consumer group metrics
+prometheus.scrape "kafka_exporter" {
+  targets = [
+    {
+      "__address__" = "kafka-exporter:9308",
+      "job"         = "kafka-exporter",
+    },
+  ]
+
+  scrape_interval = "15s"
+  forward_to      = [prometheus.remote_write.local.receiver]
+}
+
+// Send collected metrics to Prometheus
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}

@@ -3,7 +3,26 @@ global:
 
 scrape_configs:
 
+  # OpenTelemetry Collector metrics
   - job_name: otel-collector
     static_configs:
       - targets:
           - otel-collector:8889
+
+  # RabbitMQ broker metrics
+  - job_name: rabbitmq
+    static_configs:
+      - targets:
+          - ecommerce-rabbitmq:15692
+
+  # Kafka broker JVM metrics
+  - job_name: kafka
+    static_configs:
+      - targets:
+          - kafka:9404
+
+  # Kafka consumer group and partition metrics
+  - job_name: kafka-exporter
+    static_configs:
+      - targets:
+          - kafka-exporter:9308

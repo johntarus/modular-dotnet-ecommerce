@@ -11,7 +11,6 @@ using Customers.Infrastructure;
 using Inventory;
 using Inventory.Features.Inventory.Grpc;
 using Notifications;
-using Notifications.Features;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
