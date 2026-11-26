@@ -9,7 +9,9 @@ public class Product : BaseEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
+    public string Sku { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
+    public string Currency { get; private set; } = "KES";
     public Guid CategoryId { get; private set; }
     public bool IsDeleted { get; private set; }
     public Vector? Embedding { get; private set; }
@@ -41,6 +43,8 @@ public class Product : BaseEntity
             UpdatedAt = DateTime.UtcNow,
             IsDeleted = false
         };
+        // Same format as the BackfillProductSkuAndCurrency migration uses for existing rows.
+        product.Sku = $"SKU-{product.Id.ToString("N")[..8].ToUpperInvariant()}";
 
         product.AddDomainEvent(new ProductCreatedDomainEvent(
             product.Id,

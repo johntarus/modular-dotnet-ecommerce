@@ -27,11 +27,21 @@ public sealed class FakeCatalogApi : ICatalogApi
     public Task<ProductDto?> GetProductByIdAsync(Guid productId, CancellationToken ct = default)
     {
         Requested.Add(productId);
-        ProductDto? dto = _prices.TryGetValue(productId, out var price)
-            ? new ProductDto(productId, "Product", "Description", price, Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow)
-            : null;
-        return Task.FromResult(dto);
+        return Task.FromResult(Build(productId));
     }
+
+    public Task<IReadOnlyList<ProductDto>> GetProductsByIdAsync(IReadOnlyCollection<Guid> productIds,
+        CancellationToken ct = default)
+    {
+        Requested.AddRange(productIds);
+        IReadOnlyList<ProductDto> dtos = productIds.Select(Build).OfType<ProductDto>().ToList();
+        return Task.FromResult(dtos);
+    }
+
+    private ProductDto? Build(Guid productId) =>
+        _prices.TryGetValue(productId, out var price)
+            ? new ProductDto(productId, "Product", "SKU-TEST", price, "USD", true)
+            : null;
 
     public Task<bool> ProductExistsAsync(Guid productId, CancellationToken ct = default) =>
         Task.FromResult(_prices.ContainsKey(productId));

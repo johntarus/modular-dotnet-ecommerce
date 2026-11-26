@@ -3,9 +3,8 @@ namespace Catalog.Contracts.Dtos;
 public sealed record ProductDto(
     Guid Id,
     string Name,
-    string Description,
+    string Sku,
     decimal Price,
-    Guid CategoryId,
-    DateTime CreatedAt,
-    DateTime UpdatedAt
+    string Currency,
+    bool IsActive
 );

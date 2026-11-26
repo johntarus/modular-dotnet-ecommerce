@@ -13,7 +13,13 @@ COPY ["src/Modules/Inventory.Contracts/Inventory.Contracts.csproj", "src/Modules
 COPY ["src/Modules/Cart/Cart.csproj", "src/Modules/Cart/"]
 COPY ["src/Modules/Cart.Contracts/Cart.Contracts.csproj", "src/Modules/Cart.Contracts/"]
 COPY ["src/Modules/Ai/Ai.csproj", "src/Modules/Ai/"]  
-COPY ["src/Modules/Ai.Contracts/Ai.Contracts.csproj", "src/Modules/Ai.Contracts/"] 
+COPY ["src/Modules/Ai.Contracts/Ai.Contracts.csproj", "src/Modules/Ai.Contracts/"]
+COPY ["src/Modules/Customers/Customers.csproj", "src/Modules/Customers/"]
+COPY ["src/Modules/Customers.Contracts/Customers.Contracts.csproj", "src/Modules/Customers.Contracts/"]
+COPY ["src/Modules/Notifications/Notifications.csproj", "src/Modules/Notifications/"]
+COPY ["src/Modules/Notifications.Contracts/Notifications.Contracts.csproj", "src/Modules/Notifications.Contracts/"]
+COPY ["src/Modules/Orders/Orders.csproj", "src/Modules/Orders/"]
+COPY ["src/Modules/Orders.Contracts/Orders.Contracts.csproj", "src/Modules/Orders.Contracts/"]
 
 # Restore dependencies
 RUN dotnet restore "src/Api/Api.csproj"

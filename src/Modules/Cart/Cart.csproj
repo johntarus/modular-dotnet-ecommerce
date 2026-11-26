@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\Cart.Contracts\Cart.Contracts.csproj" />
       <ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
       <ProjectReference Include="..\Inventory.Contracts\Inventory.Contracts.csproj" />
     </ItemGroup>

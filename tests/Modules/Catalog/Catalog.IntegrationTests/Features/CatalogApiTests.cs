@@ -18,7 +18,7 @@ public class CatalogApiTests(PostgresFixture db) : CatalogTestBase(db)
         Assert.NotNull(dto);
         Assert.Equal("Mug", dto.Name);
         Assert.Equal(19.99m, dto.Price);
-        Assert.Equal(categoryId, dto.CategoryId);
+        Assert.True(dto.IsActive);
     }
 
     [Fact]

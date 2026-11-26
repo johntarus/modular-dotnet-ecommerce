@@ -8,20 +8,21 @@
 
     <ItemGroup>
       <Folder Include="Features\CancelOrder\" />
-      <Folder Include="Features\CreateOrder\" />
-      <Folder Include="Features\GetOrders\" />
-      <Folder Include="Features\GetOrder\" />
       <Folder Include="Features\UpdateOrderStatus\" />
+      <Folder Include="Infrastructure\Messaging\" />
       <Folder Include="Infrastructure\Migrations\" />
-      <Folder Include="Infrastructure\Services\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.4" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\Catalog\Catalog.csproj" />
+      <ProjectReference Include="..\Customers.Contracts\Customers.Contracts.csproj" />
+      <ProjectReference Include="..\Cart.Contracts\Cart.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

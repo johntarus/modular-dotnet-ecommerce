@@ -11,7 +11,7 @@ using Customers.Infrastructure;
 using Inventory;
 using Inventory.Features.Inventory.Grpc;
 using Notifications;
-using Notifications.Features;
+using Orders;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +28,8 @@ builder.Services.AddBuildingBlocks(builder.Configuration,
     typeof(CartModule).Assembly,
     typeof(AiModule).Assembly,
     typeof(CustomersModule).Assembly,
-    typeof(NotificationsModule).Assembly);
+    typeof(NotificationsModule).Assembly,
+    typeof(OrdersModule).Assembly);
 
 builder.Services.AddAuth(builder.Configuration, builder.Environment);
 builder.Services.AddSwaggerDocumentation(builder.Configuration);
@@ -42,6 +43,7 @@ builder.Services.AddCart(builder.Configuration);
 builder.Services.AddAiModule(builder.Configuration);
 builder.Services.AddCustomers(builder.Configuration);
 builder.Services.AddNotifications(builder.Configuration);
+builder.Services.AddOrders(builder.Configuration);
 
 builder.Services.AddMessaging(builder.Configuration);
 
@@ -73,5 +75,6 @@ app.MapInventory();
 app.MapCart();
 app.MapCustomers();
 app.MapNotifications();
+app.MapOrders();
 
 app.Run();

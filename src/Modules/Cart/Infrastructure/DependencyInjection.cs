@@ -1,4 +1,6 @@
+using Cart.Contracts;
 using Cart.Features.Carts.CartResolver;
+using Cart.Infrastructure.Contracts;
 using Cart.Infrastructure.Persistence;
 using Inventory.Contracts.Grpc;
 using MassTransit;
@@ -17,6 +19,7 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
         
         services.AddScoped<ICartResolver, CartResolver>();
+        services.AddScoped<ICartModuleApi, CartModuleApi>();
         services.AddHostedService<ExpiredCartCleanupJob>();
 
         services.AddMassTransit(x =>
