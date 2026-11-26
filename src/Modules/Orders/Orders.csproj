@@ -7,8 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Features\" />
-      <Folder Include="Infrastructure\" />
+      <Folder Include="Features\CancelOrder\" />
+      <Folder Include="Features\CreateOrder\" />
+      <Folder Include="Features\GetOrders\" />
+      <Folder Include="Features\GetOrder\" />
+      <Folder Include="Features\UpdateOrderStatus\" />
+      <Folder Include="Infrastructure\Migrations\" />
+      <Folder Include="Infrastructure\Services\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.csproj" />
     </ItemGroup>
 
 </Project>
