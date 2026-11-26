@@ -18,7 +18,7 @@
       - RabbitMq__Password=guest
       #KAFKA
       - Kafka__BootstrapServers=kafka:9092
-      - Otel__Endpoint=http://otel-collector:4317
+      - Otel__Endpoint=http://otel-collector:14317
       #AI Config
       - Ai__DefaultChatProvider=Ollama
       - Ai__OllamaBaseUrl=http://ollama:11434
@@ -150,10 +150,10 @@
 
     volumes:
       - kafka_data:/var/lib/kafka/data
-      - ./monitoring/jmx:/opt/jmx:ro
+      - ./observability/jmx:/opt/jmx:ro
 
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1" ]
+      test: [ "CMD-SHELL", "env -u KAFKA_OPTS /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1" ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -199,8 +199,8 @@
     volumes:
       - ./observability/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
     ports:
-      - "4317:4317"     # OTLP gRPC
-      - "4318:4318"     # OTLP HTTP
+      - "14317:4317"     # OTLP gRPC
+      - "14318:4318"     # OTLP HTTP
       - "8889:8889"     # Prometheus metrics
       - "13133:13133"   # Health check
     depends_on:
@@ -267,7 +267,7 @@
       - "4317:4317"
       - "4318:4318"
     volumes:
-      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - alloy_data:/var/lib/alloy/data
     command:
       - run
