@@ -4,7 +4,7 @@ namespace Customers.Features.Addresses.AddAddress;
 
 public sealed record AddAddressCommand(
     string RecipientName,
-    string? PhoneNumber,
+    string PhoneNumber,
     string? Email,
     string Street,
     string City,

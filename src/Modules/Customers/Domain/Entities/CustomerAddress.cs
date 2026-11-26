@@ -23,7 +23,7 @@ public sealed class CustomerAddress
     internal static CustomerAddress Create(
         Guid customerId,
         string recipientName,
-        string? phoneNumber,
+        string phoneNumber,
         string? email,
         string street,
         string city,
@@ -34,6 +34,8 @@ public sealed class CustomerAddress
     {
         if (string.IsNullOrWhiteSpace(recipientName))
             throw new ValidationException("Recipient name is required.");
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+            throw new ValidationException("Phone number is required.");
         if (string.IsNullOrWhiteSpace(street))
             throw new ValidationException("Street is required.");
         if (string.IsNullOrWhiteSpace(city))
@@ -48,7 +50,7 @@ public sealed class CustomerAddress
             Id = Guid.NewGuid(),
             CustomerId =  customerId,
             RecipientName = recipientName.Trim(),
-            PhoneNumber = NormalizeOptional(phoneNumber),
+            PhoneNumber = phoneNumber.Trim(),
             Email = NormalizeOptional(email),
             Street = street.Trim(),
             City = city.Trim(),
@@ -61,7 +63,7 @@ public sealed class CustomerAddress
 
     internal void Update(
         string recipientName,
-        string? phoneNumber,
+        string phoneNumber,
         string? email,
         string street,
         string city,
@@ -73,6 +75,10 @@ public sealed class CustomerAddress
         if (string.IsNullOrWhiteSpace(recipientName))
             throw new ValidationException(
                 "Recipient name is required.");
+
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+            throw new ValidationException(
+                "Phone number is required.");
 
         if (string.IsNullOrWhiteSpace(street))
             throw new ValidationException(
@@ -93,7 +99,7 @@ public sealed class CustomerAddress
                 "A valid two-character country code is required.");
         }
         RecipientName = recipientName.Trim();
-        PhoneNumber = NormalizeOptional(phoneNumber);
+        PhoneNumber = phoneNumber.Trim();
         Email = NormalizeOptional(email);
         Street = street.Trim();
         City = city.Trim();

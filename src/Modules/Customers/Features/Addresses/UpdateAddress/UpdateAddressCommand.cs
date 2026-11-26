@@ -5,7 +5,7 @@ namespace Customers.Features.Addresses.UpdateAddress;
 public sealed record UpdateAddressCommand(
     Guid AddressId,
     string RecipientName,
-    string? PhoneNumber,
+    string PhoneNumber,
     string? Email,
     string Street,
     string City,

@@ -84,7 +84,7 @@ public sealed class Customer : BaseEntity
     public Guid AddAddress(
         Guid customerId,
         string recipientName,
-        string? phoneNumber,
+        string phoneNumber,
         string? email,
         string street,
         string city,
@@ -106,7 +106,7 @@ public sealed class Customer : BaseEntity
     public void UpdateAddress(
         Guid addressId,
         string recipientName,
-        string? phoneNumber,
+        string phoneNumber,
         string? email,
         string street,
         string city,

@@ -12,7 +12,7 @@ public sealed record CustomerAddressDto(
     Guid Id,
     Guid CustomerId,
     string RecipientName,
-    string PhoneNumber,
+    string? PhoneNumber,
     string Street,
     string City,
     string State,

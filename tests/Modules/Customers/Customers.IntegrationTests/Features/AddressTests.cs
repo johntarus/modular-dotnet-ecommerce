@@ -143,7 +143,7 @@ public class AddressTests(PostgresFixture db) : CustomersTestBase(db)
 
         await using (var context = NewContext())
             await new UpdateAddressCommandHandler(context, CurrentUser).Handle(
-                new UpdateAddressCommand(id, "John Doe", null, null, "2 Kenyatta Ave", "Mombasa", "Mombasa County", "80100", "KE", "Holiday"),
+                new UpdateAddressCommand(id, "John Doe", "+254711111111", null, "2 Kenyatta Ave", "Mombasa", "Mombasa County", "80100", "KE", "Holiday"),
                 default);
 
         var address = Assert.Single((await LoadCustomerAsync(me.Id))!.Addresses);

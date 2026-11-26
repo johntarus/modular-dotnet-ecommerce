@@ -21,14 +21,14 @@ public class CustomerAddressTests
     {
         var customer = NewCustomer();
 
-        var id = customer.AddAddress(customer.Id, "  Jane Doe ", "  ", null,
+        var id = customer.AddAddress(customer.Id, "  Jane Doe ", " +254700000000 ", null,
             " 1 Moi Avenue ", " Nairobi ", " Nairobi County ", "  ", " ke ", "  Home ");
 
         var address = Assert.Single(customer.Addresses);
         Assert.Equal(id, address.Id);
         Assert.Equal(customer.Id, address.CustomerId);
         Assert.Equal("Jane Doe", address.RecipientName);
-        Assert.Null(address.PhoneNumber);
+        Assert.Equal("+254700000000", address.PhoneNumber);
         Assert.Null(address.Email);
         Assert.Equal("1 Moi Avenue", address.Street);
         Assert.Equal("Nairobi", address.City);
@@ -80,9 +80,24 @@ public class CustomerAddressTests
         var customer = NewCustomer();
 
         var ex = Assert.Throws<ValidationException>(() =>
-            customer.AddAddress(customer.Id, recipient, null, null, street, city, state, null, country));
+            customer.AddAddress(customer.Id, recipient, "+254700000000", null, street, city, state, null, country));
 
         Assert.Equal(message, ex.Message);
+        Assert.Empty(customer.Addresses);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  ")]
+    public void AddAddress_WithoutPhoneNumber_Throws_AndAddsNothing(string? phone)
+    {
+        var customer = NewCustomer();
+
+        var ex = Assert.Throws<ValidationException>(() =>
+            customer.AddAddress(customer.Id, "Jane", phone!, null, "1 Moi Ave", "Nairobi", "Nairobi", null, "KE"));
+
+        Assert.Equal("Phone number is required.", ex.Message);
         Assert.Empty(customer.Addresses);
     }
 
@@ -94,12 +109,12 @@ public class CustomerAddressTests
         var customer = NewCustomer();
         var id = AddHome(customer);
 
-        customer.UpdateAddress(id, "John Doe", null, "john@shop.test",
+        customer.UpdateAddress(id, "John Doe", "+254711111111", "john@shop.test",
             "2 Kenyatta Ave", "Mombasa", "Mombasa County", "80100", "ke", "Holiday");
 
         var address = Get(customer, id);
         Assert.Equal("John Doe", address.RecipientName);
-        Assert.Null(address.PhoneNumber);
+        Assert.Equal("+254711111111", address.PhoneNumber);
         Assert.Equal("john@shop.test", address.Email);
         Assert.Equal("2 Kenyatta Ave", address.Street);
         Assert.Equal("Mombasa", address.City);
@@ -116,7 +131,7 @@ public class CustomerAddressTests
         var id = AddHome(customer);
         customer.SetDefaultShippingAddress(id);
 
-        customer.UpdateAddress(id, "John", null, null, "2 Kenyatta Ave", "Mombasa", "Mombasa", null, "KE");
+        customer.UpdateAddress(id, "John", "+254711111111", null, "2 Kenyatta Ave", "Mombasa", "Mombasa", null, "KE");
 
         Assert.True(Get(customer, id).IsDefaultShipping);
     }
@@ -130,13 +145,28 @@ public class CustomerAddressTests
         var id = AddHome(customer);
 
         var ex = Assert.Throws<ValidationException>(() =>
-            customer.UpdateAddress(id, recipient, null, null, street, city, state, null, country));
+            customer.UpdateAddress(id, recipient, "+254711111111", null, street, city, state, null, country));
 
         Assert.Equal(message, ex.Message);
         var address = Get(customer, id);
         Assert.Equal("Jane Doe", address.RecipientName);
         Assert.Equal("1 Moi Avenue", address.Street);
         Assert.Equal("Nairobi County", address.State);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("  ")]
+    public void UpdateAddress_WithoutPhoneNumber_Throws_AndKeepsExistingPhone(string? phone)
+    {
+        var customer = NewCustomer();
+        var id = AddHome(customer);
+
+        var ex = Assert.Throws<ValidationException>(() =>
+            customer.UpdateAddress(id, "Jane Doe", phone!, null, "1 Moi Avenue", "Nairobi", "Nairobi County", null, "KE"));
+
+        Assert.Equal("Phone number is required.", ex.Message);
+        Assert.Equal("+254700000000", Get(customer, id).PhoneNumber);
     }
 
     [Fact]
@@ -146,7 +176,7 @@ public class CustomerAddressTests
         AddHome(customer);
 
         var ex = Assert.Throws<ValidationException>(() =>
-            customer.UpdateAddress(Guid.NewGuid(), "John", null, null, "St", "City", "State", null, "KE"));
+            customer.UpdateAddress(Guid.NewGuid(), "John", "+254711111111", null, "St", "City", "State", null, "KE"));
         Assert.Equal("The specified address does not belong to this customer.", ex.Message);
     }
 

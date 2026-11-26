@@ -16,7 +16,7 @@ public class CustomersModuleApi(CustomersDbContext context) : ICustomersModuleAp
                 a.Id,
                 a.CustomerId,
                 a.RecipientName ?? "N/A",
-                a.PhoneNumber ?? null,
+                a.PhoneNumber,
                 a.Street,
                 a.City,
                 a.State,

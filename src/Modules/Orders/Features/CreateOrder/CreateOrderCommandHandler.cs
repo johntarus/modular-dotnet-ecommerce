@@ -26,10 +26,12 @@ internal sealed class CreateOrderHandler(
 
         var identitySubject = currentUser.UserId.ToString();
 
-        // 2. Fetch Address (Verifies ownership and returns the CustomerId)
+        // 2. Fetch Address (Verifies ownership and returns the CustomerId).
+        // Null means the address doesn't exist or isn't this user's — either way they need to add one.
         var address = await customersApi.GetCustomerAddressAsync(identitySubject, request.AddressId, cancellationToken);
         if (address is null)
-            throw new NotFoundException("Shipping address not found.");
+            throw new NotFoundException(
+                "Shipping address not found. Add an address to your account before checking out.");
             
         var customerId = address.CustomerId;
 
@@ -82,5 +84,5 @@ internal sealed class CreateOrderHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return order.Id;
-    }
+    }   
 }
