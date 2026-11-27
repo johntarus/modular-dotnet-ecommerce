@@ -1,4 +1,6 @@
+using Inventory.Contracts;
 using Inventory.Features.Inventory.EventHandlers;
+using Inventory.Infrastructure.Contracts;
 using Inventory.Infrastructure.Persistence;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,8 @@ public static class DependencyInjection
     {
         services.AddDbContext<InventoryDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<IInventoryModuleApi, InventoryModuleApi>();
 
         services.AddMassTransit(x =>
         {

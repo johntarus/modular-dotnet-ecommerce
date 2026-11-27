@@ -3,6 +3,7 @@ using BuildingBlocks.Infrastructure.Auth.CurrentUser;
 using Cart.Contracts;
 using Catalog.Contracts;
 using Customers.Contracts;
+using Inventory.Contracts;
 using MediatR;
 using Orders.Domain.Entities;
 using Orders.Domain.ValueObjects;
@@ -15,6 +16,7 @@ internal sealed class CreateOrderHandler(
     ICustomersModuleApi customersApi,
     ICatalogApi catalogApi,
     ICartModuleApi cartApi,
+    IInventoryModuleApi inventoryApi,
     ICurrentUser currentUser
 ) : IRequestHandler<CreateOrderCommand, Guid>
 {
@@ -62,21 +64,36 @@ internal sealed class CreateOrderHandler(
                 Money.Create(product.Price, product.Currency));
         }).ToList();
 
-        // 6. Currency Validation
+        // 6. Stock Check — stock may have run out since the items were added to the cart.
+        // This only checks; nothing is reserved yet, so two checkouts can still race for the last unit.
+        // Sequential on purpose: the Inventory API shares one scoped DbContext, which isn't thread-safe.
+        var unavailable = new List<string>();
+        foreach (var line in cart.Items.GroupBy(i => i.ProductId))
+        {
+            var quantity = line.Sum(i => i.Quantity);
+            if (!await inventoryApi.IsStockAvailableAsync(line.Key, quantity, cancellationToken))
+                unavailable.Add(
+                    $"Not enough stock for '{productsById[line.Key].Name}' (you have {quantity} in your cart).");
+        }
+
+        if (unavailable.Count > 0)
+            throw new ValidationException(unavailable);
+
+        // 7. Currency Validation
         var orderCurrency = orderItems.First().UnitPrice.Currency;
         if (orderItems.Any(x => x.UnitPrice.Currency != orderCurrency))
             throw new InvalidOperationException("All products in an order must use the same currency.");
 
-        // 7. Snapshot Address
+        // 8. Snapshot Address
         var deliveryAddress = new DeliveryAddress(
             address.RecipientName, address.PhoneNumber, address.Street, 
             address.City, address.State, address.CountryCode, address.PostalCode);
 
-        // 8. Calculate Shipping (Server-side)
+        // 9. Calculate Shipping (Server-side)
         const decimal flatShippingRate = 500m; 
         var shippingCost = Money.Create(flatShippingRate, orderCurrency);
 
-        // 9. Create Aggregate & Save (Outbox publishes OrderCreatedEvent)
+        // 10. Create Aggregate & Save (Outbox publishes OrderCreatedEvent)
         var order = Order.Create(
             customerId, deliveryAddress, shippingCost, orderItems, DateTime.UtcNow);
 
